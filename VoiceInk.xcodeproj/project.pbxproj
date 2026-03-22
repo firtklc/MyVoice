@@ -9,7 +9,11 @@
 /* Begin PBXBuildFile section */
 		11898A5518DE94973CB60CE6 /* DictionaryReplacerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7141040818B2620BA5AE3F93 /* DictionaryReplacerTests.swift */; };
 		13E87B86EB2125C8607849A6 /* VoiceInkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 857DA45D1CEE06AC9D2E988C /* VoiceInkApp.swift */; };
+		4EFAFF0BCD544E92BF2ABB33 /* Recorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0309AD668E15630A6EC540C /* Recorder.swift */; };
 		77DD97C0AB9DB47FA06A1894 /* DictionaryReplacer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B6ACDFEFE69AFD725999BC /* DictionaryReplacer.swift */; };
+		B79ABFAD931AFACD50C4E5D3 /* Paster.swift in Sources */ = {isa = PBXBuildFile; fileRef = 505A96814B55EC2988202280 /* Paster.swift */; };
+		D6D73C112B0095A41E0DCD11 /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 297ED3777957BE909D849A5B /* HotkeyManager.swift */; };
+		F9088CE755FFA383D520DCC1 /* WhisperEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03AF563E073C71B330B9A36 /* WhisperEngine.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -23,10 +27,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		297ED3777957BE909D849A5B /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
+		505A96814B55EC2988202280 /* Paster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Paster.swift; sourceTree = "<group>"; };
 		7141040818B2620BA5AE3F93 /* DictionaryReplacerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryReplacerTests.swift; sourceTree = "<group>"; };
 		857DA45D1CEE06AC9D2E988C /* VoiceInkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceInkApp.swift; sourceTree = "<group>"; };
 		B03DE0B860DDCE35CE8B2EA5 /* VoiceInkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VoiceInkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C03AF563E073C71B330B9A36 /* WhisperEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhisperEngine.swift; sourceTree = "<group>"; };
 		C2502B4CE99CBF2A108F411A /* VoiceInk.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VoiceInk.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E0309AD668E15630A6EC540C /* Recorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recorder.swift; sourceTree = "<group>"; };
 		F0B6ACDFEFE69AFD725999BC /* DictionaryReplacer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryReplacer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -61,7 +69,11 @@
 			isa = PBXGroup;
 			children = (
 				F0B6ACDFEFE69AFD725999BC /* DictionaryReplacer.swift */,
+				297ED3777957BE909D849A5B /* HotkeyManager.swift */,
+				505A96814B55EC2988202280 /* Paster.swift */,
+				E0309AD668E15630A6EC540C /* Recorder.swift */,
 				857DA45D1CEE06AC9D2E988C /* VoiceInkApp.swift */,
+				C03AF563E073C71B330B9A36 /* WhisperEngine.swift */,
 			);
 			path = VoiceInk;
 			sourceTree = "<group>";
@@ -163,7 +175,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				77DD97C0AB9DB47FA06A1894 /* DictionaryReplacer.swift in Sources */,
+				D6D73C112B0095A41E0DCD11 /* HotkeyManager.swift in Sources */,
+				B79ABFAD931AFACD50C4E5D3 /* Paster.swift in Sources */,
+				4EFAFF0BCD544E92BF2ABB33 /* Recorder.swift in Sources */,
 				13E87B86EB2125C8607849A6 /* VoiceInkApp.swift in Sources */,
+				F9088CE755FFA383D520DCC1 /* WhisperEngine.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
