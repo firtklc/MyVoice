@@ -1,4 +1,4 @@
-name: VoiceInk
+name: MyVoice
 options:
   bundleIdPrefix: com.firat
   deploymentTarget:
@@ -11,21 +11,21 @@ settings:
     MACOSX_DEPLOYMENT_TARGET: "14.0"
 
 targets:
-  VoiceInk:
+  MyVoice:
     type: application
     platform: macOS
     sources:
-      - path: VoiceInk
+      - path: MyVoice
         excludes:
           - whisper-bridge
           - Info.plist
-          - VoiceInk.entitlements
+          - MyVoice.entitlements
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.firat.VoiceInk
+        PRODUCT_BUNDLE_IDENTIFIER: com.firat.MyVoice
         GENERATE_INFOPLIST_FILE: false
-        INFOPLIST_FILE: VoiceInk/Info.plist
-        CODE_SIGN_ENTITLEMENTS: VoiceInk/VoiceInk.entitlements
+        INFOPLIST_FILE: MyVoice/Info.plist
+        CODE_SIGN_ENTITLEMENTS: MyVoice/MyVoice.entitlements
         CODE_SIGN_IDENTITY: "-"
         HEADER_SEARCH_PATHS:
           - "$(PROJECT_DIR)/include"
@@ -34,7 +34,7 @@ targets:
         OTHER_LDFLAGS:
           - "-lwhisper"
         SWIFT_INCLUDE_PATHS:
-          - "$(PROJECT_DIR)/VoiceInk/whisper-bridge"
+          - "$(PROJECT_DIR)/MyVoice/whisper-bridge"
         LD_RUNPATH_SEARCH_PATHS:
           - "@executable_path/../Frameworks"
     postCompileScripts:
@@ -44,20 +44,20 @@ targets:
           cp "${PROJECT_DIR}/libs/"*.dylib "${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/"
         name: Copy whisper.cpp libraries
 
-  VoiceInkTests:
+  MyVoiceTests:
     type: bundle.unit-test
     platform: macOS
     sources:
-      - path: VoiceInkTests
+      - path: MyVoiceTests
     dependencies:
-      - target: VoiceInk
+      - target: MyVoice
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.firat.VoiceInkTests
+        PRODUCT_BUNDLE_IDENTIFIER: com.firat.MyVoiceTests
         GENERATE_INFOPLIST_FILE: true
         HEADER_SEARCH_PATHS:
           - "$(PROJECT_DIR)/include"
         LIBRARY_SEARCH_PATHS:
           - "$(PROJECT_DIR)/libs"
         SWIFT_INCLUDE_PATHS:
-          - "$(PROJECT_DIR)/VoiceInk/whisper-bridge"
+          - "$(PROJECT_DIR)/MyVoice/whisper-bridge"

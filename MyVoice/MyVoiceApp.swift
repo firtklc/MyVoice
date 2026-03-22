@@ -2,7 +2,7 @@ import SwiftUI
 import os
 
 @main
-struct VoiceInkApp: App {
+struct MyVoiceApp: App {
     @StateObject private var appState = AppState()
 
     var body: some Scene {
@@ -35,7 +35,7 @@ final class AppState: ObservableObject {
     @Published var menuBarIcon = "mic.fill"
     @Published var statusText = "Ready"
 
-    private let logger = Logger(subsystem: "com.firat.VoiceInk", category: "AppState")
+    private let logger = Logger(subsystem: "com.firat.MyVoice", category: "AppState")
     private var whisperEngine: WhisperEngine?
     private let recorder = Recorder()
     private let paster = Paster()
@@ -50,7 +50,7 @@ final class AppState: ObservableObject {
     }
 
     private func loadWhisperEngine() {
-        let modelPath = NSString("~/.voiceink/models/ggml-large-v3-turbo.bin").expandingTildeInPath
+        let modelPath = NSString("~/.myvoice/models/ggml-large-v3-turbo.bin").expandingTildeInPath
         do {
             whisperEngine = try WhisperEngine(modelPath: modelPath)
             logger.info("Model loaded")
@@ -62,7 +62,7 @@ final class AppState: ObservableObject {
     }
 
     private func loadDictionary() {
-        let dictPath = NSString("~/.voiceink/dictionary.json").expandingTildeInPath
+        let dictPath = NSString("~/.myvoice/dictionary.json").expandingTildeInPath
         let url = URL(fileURLWithPath: dictPath)
         do {
             replacer = try DictionaryReplacer(jsonFileURL: url)

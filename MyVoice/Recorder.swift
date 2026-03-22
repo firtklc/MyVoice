@@ -22,7 +22,7 @@ final class Recorder {
 
     func startRecording() throws -> URL {
         let url = URL(fileURLWithPath: NSTemporaryDirectory())
-            .appendingPathComponent("voiceink-recording-\(UUID().uuidString).wav")
+            .appendingPathComponent("myvoice-recording-\(UUID().uuidString).wav")
 
         let recorder = try AVAudioRecorder(url: url, settings: recordSettings)
         guard recorder.record() else {

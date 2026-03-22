@@ -1,5 +1,5 @@
 import Testing
-@testable import VoiceInk
+@testable import MyVoice
 
 struct DictionaryReplacerTests {
     @Test func replacesExactWord() {

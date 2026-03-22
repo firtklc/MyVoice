@@ -7,120 +7,120 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		11898A5518DE94973CB60CE6 /* DictionaryReplacerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7141040818B2620BA5AE3F93 /* DictionaryReplacerTests.swift */; };
-		13E87B86EB2125C8607849A6 /* VoiceInkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 857DA45D1CEE06AC9D2E988C /* VoiceInkApp.swift */; };
-		4EFAFF0BCD544E92BF2ABB33 /* Recorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0309AD668E15630A6EC540C /* Recorder.swift */; };
-		77DD97C0AB9DB47FA06A1894 /* DictionaryReplacer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B6ACDFEFE69AFD725999BC /* DictionaryReplacer.swift */; };
-		B79ABFAD931AFACD50C4E5D3 /* Paster.swift in Sources */ = {isa = PBXBuildFile; fileRef = 505A96814B55EC2988202280 /* Paster.swift */; };
-		D6D73C112B0095A41E0DCD11 /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 297ED3777957BE909D849A5B /* HotkeyManager.swift */; };
-		F9088CE755FFA383D520DCC1 /* WhisperEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03AF563E073C71B330B9A36 /* WhisperEngine.swift */; };
+		07DEF45560540C8C6724AD41 /* DictionaryReplacerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF950E7DB7D80D8518F4BDD5 /* DictionaryReplacerTests.swift */; };
+		2436A9C3B009ED234B9E8101 /* WhisperEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A72A4C6C5644F305467B56 /* WhisperEngine.swift */; };
+		3E1F672DC6312D2BECF3B14A /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88824BE8099C762C296BEF16 /* HotkeyManager.swift */; };
+		607B35308C276C94BEEF6E0B /* MyVoiceApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C36AAD210634418CF21BF1 /* MyVoiceApp.swift */; };
+		B01CB48D78CC82B85B8DFEA1 /* DictionaryReplacer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1749D857037E62AF08B59AEA /* DictionaryReplacer.swift */; };
+		B1CC4E27CE6B6AE4A52F3C05 /* Paster.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35E56EB97DE64D6F0DA31416 /* Paster.swift */; };
+		CFD0E4CF121FD28E7EB7E0CE /* Recorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF52234D3EB1EDB2B6311AF9 /* Recorder.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		B9BF15C40BC1236FA01D6555 /* PBXContainerItemProxy */ = {
+		578B1ECE839F884E12B87B54 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 77A3E2B0D27A92A500CC8D6C /* Project object */;
+			containerPortal = 0BC224550632D9EFC4BAE5E7 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 14C32B0FB4CA7748C34108EC;
-			remoteInfo = VoiceInk;
+			remoteGlobalIDString = AC849DAF79252CB9F4BB7779;
+			remoteInfo = MyVoice;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		297ED3777957BE909D849A5B /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
-		505A96814B55EC2988202280 /* Paster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Paster.swift; sourceTree = "<group>"; };
-		7141040818B2620BA5AE3F93 /* DictionaryReplacerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryReplacerTests.swift; sourceTree = "<group>"; };
-		857DA45D1CEE06AC9D2E988C /* VoiceInkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceInkApp.swift; sourceTree = "<group>"; };
-		B03DE0B860DDCE35CE8B2EA5 /* VoiceInkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VoiceInkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		C03AF563E073C71B330B9A36 /* WhisperEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhisperEngine.swift; sourceTree = "<group>"; };
-		C2502B4CE99CBF2A108F411A /* VoiceInk.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VoiceInk.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		E0309AD668E15630A6EC540C /* Recorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recorder.swift; sourceTree = "<group>"; };
-		F0B6ACDFEFE69AFD725999BC /* DictionaryReplacer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryReplacer.swift; sourceTree = "<group>"; };
+		1749D857037E62AF08B59AEA /* DictionaryReplacer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryReplacer.swift; sourceTree = "<group>"; };
+		35E56EB97DE64D6F0DA31416 /* Paster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Paster.swift; sourceTree = "<group>"; };
+		60A72A4C6C5644F305467B56 /* WhisperEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhisperEngine.swift; sourceTree = "<group>"; };
+		88824BE8099C762C296BEF16 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
+		AF950E7DB7D80D8518F4BDD5 /* DictionaryReplacerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryReplacerTests.swift; sourceTree = "<group>"; };
+		B12C9A4784567F2FF8308AB7 /* MyVoiceTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MyVoiceTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C5C36AAD210634418CF21BF1 /* MyVoiceApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyVoiceApp.swift; sourceTree = "<group>"; };
+		D3E41F64344310B6F525DAFB /* MyVoice.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyVoice.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF52234D3EB1EDB2B6311AF9 /* Recorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recorder.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
-		40D6E563F4376356BA8EBE3F = {
+		395809FCCCDE4EC0875458F7 /* MyVoiceTests */ = {
 			isa = PBXGroup;
 			children = (
-				FF8A4980BED04D554177B797 /* VoiceInk */,
-				7FD96525BDC95E886859B25D /* VoiceInkTests */,
-				5762403592D3FAE401851620 /* Products */,
+				AF950E7DB7D80D8518F4BDD5 /* DictionaryReplacerTests.swift */,
+			);
+			path = MyVoiceTests;
+			sourceTree = "<group>";
+		};
+		4E1510E6B3EE7BFC32D707C5 = {
+			isa = PBXGroup;
+			children = (
+				AB8FDBEA4A326BABC22548E6 /* MyVoice */,
+				395809FCCCDE4EC0875458F7 /* MyVoiceTests */,
+				70E758DC090473D487FCE990 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		5762403592D3FAE401851620 /* Products */ = {
+		70E758DC090473D487FCE990 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				C2502B4CE99CBF2A108F411A /* VoiceInk.app */,
-				B03DE0B860DDCE35CE8B2EA5 /* VoiceInkTests.xctest */,
+				D3E41F64344310B6F525DAFB /* MyVoice.app */,
+				B12C9A4784567F2FF8308AB7 /* MyVoiceTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		7FD96525BDC95E886859B25D /* VoiceInkTests */ = {
+		AB8FDBEA4A326BABC22548E6 /* MyVoice */ = {
 			isa = PBXGroup;
 			children = (
-				7141040818B2620BA5AE3F93 /* DictionaryReplacerTests.swift */,
+				1749D857037E62AF08B59AEA /* DictionaryReplacer.swift */,
+				88824BE8099C762C296BEF16 /* HotkeyManager.swift */,
+				C5C36AAD210634418CF21BF1 /* MyVoiceApp.swift */,
+				35E56EB97DE64D6F0DA31416 /* Paster.swift */,
+				EF52234D3EB1EDB2B6311AF9 /* Recorder.swift */,
+				60A72A4C6C5644F305467B56 /* WhisperEngine.swift */,
 			);
-			path = VoiceInkTests;
-			sourceTree = "<group>";
-		};
-		FF8A4980BED04D554177B797 /* VoiceInk */ = {
-			isa = PBXGroup;
-			children = (
-				F0B6ACDFEFE69AFD725999BC /* DictionaryReplacer.swift */,
-				297ED3777957BE909D849A5B /* HotkeyManager.swift */,
-				505A96814B55EC2988202280 /* Paster.swift */,
-				E0309AD668E15630A6EC540C /* Recorder.swift */,
-				857DA45D1CEE06AC9D2E988C /* VoiceInkApp.swift */,
-				C03AF563E073C71B330B9A36 /* WhisperEngine.swift */,
-			);
-			path = VoiceInk;
+			path = MyVoice;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		14C32B0FB4CA7748C34108EC /* VoiceInk */ = {
+		79D5DFC59C6FF78E79288928 /* MyVoiceTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 0761A439EEF628F5EE344AF5 /* Build configuration list for PBXNativeTarget "VoiceInk" */;
+			buildConfigurationList = AB7C30718BF0186C02018AB7 /* Build configuration list for PBXNativeTarget "MyVoiceTests" */;
 			buildPhases = (
-				8DECE9BD8A767F3029C1C183 /* Sources */,
-				26B48F643594032DA5500340 /* Copy whisper.cpp libraries */,
+				69515ACD54BD2CACC7F0DF8D /* Sources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				161045B01903D18A92189E00 /* PBXTargetDependency */,
 			);
-			name = VoiceInk;
+			name = MyVoiceTests;
 			packageProductDependencies = (
 			);
-			productName = VoiceInk;
-			productReference = C2502B4CE99CBF2A108F411A /* VoiceInk.app */;
-			productType = "com.apple.product-type.application";
-		};
-		4B3D0176077F26BEFBFFF8E1 /* VoiceInkTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 59432354AF44F9615B7B6683 /* Build configuration list for PBXNativeTarget "VoiceInkTests" */;
-			buildPhases = (
-				B3E83AA385E28F7AFAA7E8D7 /* Sources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				BA9AD886699FB2BD3DDD981B /* PBXTargetDependency */,
-			);
-			name = VoiceInkTests;
-			packageProductDependencies = (
-			);
-			productName = VoiceInkTests;
-			productReference = B03DE0B860DDCE35CE8B2EA5 /* VoiceInkTests.xctest */;
+			productName = MyVoiceTests;
+			productReference = B12C9A4784567F2FF8308AB7 /* MyVoiceTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		AC849DAF79252CB9F4BB7779 /* MyVoice */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F0F147FFDB2AF6751B486691 /* Build configuration list for PBXNativeTarget "MyVoice" */;
+			buildPhases = (
+				49BF1265E0CB32DA3F9B4A54 /* Sources */,
+				18E4999A8677F3B0DBFF550B /* Copy whisper.cpp libraries */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MyVoice;
+			packageProductDependencies = (
+			);
+			productName = MyVoice;
+			productReference = D3E41F64344310B6F525DAFB /* MyVoice.app */;
+			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		77A3E2B0D27A92A500CC8D6C /* Project object */ = {
+		0BC224550632D9EFC4BAE5E7 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
@@ -128,28 +128,28 @@
 				TargetAttributes = {
 				};
 			};
-			buildConfigurationList = 0C2BB2BABDC264F74DEF6D75 /* Build configuration list for PBXProject "VoiceInk" */;
+			buildConfigurationList = F4169D3248D1191B259EB568 /* Build configuration list for PBXProject "MyVoice" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				Base,
 				en,
 			);
-			mainGroup = 40D6E563F4376356BA8EBE3F;
+			mainGroup = 4E1510E6B3EE7BFC32D707C5;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 5762403592D3FAE401851620 /* Products */;
+			productRefGroup = 70E758DC090473D487FCE990 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				14C32B0FB4CA7748C34108EC /* VoiceInk */,
-				4B3D0176077F26BEFBFFF8E1 /* VoiceInkTests */,
+				AC849DAF79252CB9F4BB7779 /* MyVoice */,
+				79D5DFC59C6FF78E79288928 /* MyVoiceTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		26B48F643594032DA5500340 /* Copy whisper.cpp libraries */ = {
+		18E4999A8677F3B0DBFF550B /* Copy whisper.cpp libraries */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -170,50 +170,50 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		8DECE9BD8A767F3029C1C183 /* Sources */ = {
+		49BF1265E0CB32DA3F9B4A54 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				77DD97C0AB9DB47FA06A1894 /* DictionaryReplacer.swift in Sources */,
-				D6D73C112B0095A41E0DCD11 /* HotkeyManager.swift in Sources */,
-				B79ABFAD931AFACD50C4E5D3 /* Paster.swift in Sources */,
-				4EFAFF0BCD544E92BF2ABB33 /* Recorder.swift in Sources */,
-				13E87B86EB2125C8607849A6 /* VoiceInkApp.swift in Sources */,
-				F9088CE755FFA383D520DCC1 /* WhisperEngine.swift in Sources */,
+				B01CB48D78CC82B85B8DFEA1 /* DictionaryReplacer.swift in Sources */,
+				3E1F672DC6312D2BECF3B14A /* HotkeyManager.swift in Sources */,
+				607B35308C276C94BEEF6E0B /* MyVoiceApp.swift in Sources */,
+				B1CC4E27CE6B6AE4A52F3C05 /* Paster.swift in Sources */,
+				CFD0E4CF121FD28E7EB7E0CE /* Recorder.swift in Sources */,
+				2436A9C3B009ED234B9E8101 /* WhisperEngine.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B3E83AA385E28F7AFAA7E8D7 /* Sources */ = {
+		69515ACD54BD2CACC7F0DF8D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				11898A5518DE94973CB60CE6 /* DictionaryReplacerTests.swift in Sources */,
+				07DEF45560540C8C6724AD41 /* DictionaryReplacerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		BA9AD886699FB2BD3DDD981B /* PBXTargetDependency */ = {
+		161045B01903D18A92189E00 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 14C32B0FB4CA7748C34108EC /* VoiceInk */;
-			targetProxy = B9BF15C40BC1236FA01D6555 /* PBXContainerItemProxy */;
+			target = AC849DAF79252CB9F4BB7779 /* MyVoice */;
+			targetProxy = 578B1ECE839F884E12B87B54 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		37C280D4BDE82DA07CC0CBDC /* Debug */ = {
+		964F2314CA857007DC68A40E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = VoiceInk/VoiceInk.entitlements;
+				CODE_SIGN_ENTITLEMENTS = MyVoice/MyVoice.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/include",
 				);
-				INFOPLIST_FILE = VoiceInk/Info.plist;
+				INFOPLIST_FILE = MyVoice/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"@executable_path/../Frameworks",
 				);
@@ -223,15 +223,15 @@
 				OTHER_LDFLAGS = (
 					"-lwhisper",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.firat.VoiceInk;
+				PRODUCT_BUNDLE_IDENTIFIER = com.firat.MyVoice;
 				SDKROOT = macosx;
 				SWIFT_INCLUDE_PATHS = (
-					"$(PROJECT_DIR)/VoiceInk/whisper-bridge",
+					"$(PROJECT_DIR)/MyVoice/whisper-bridge",
 				);
 			};
 			name = Debug;
 		};
-		89B8C69BB409E8964EE6151E /* Debug */ = {
+		B2A990C01576EA180D8666A9 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -294,7 +294,7 @@
 			};
 			name = Debug;
 		};
-		AA6E84176CB208ACA7A1E790 /* Release */ = {
+		CE25FC0AF0842D21B0DC5883 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -311,16 +311,16 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/libs",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.firat.VoiceInkTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.firat.MyVoiceTests;
 				SDKROOT = macosx;
 				SWIFT_INCLUDE_PATHS = (
-					"$(PROJECT_DIR)/VoiceInk/whisper-bridge",
+					"$(PROJECT_DIR)/MyVoice/whisper-bridge",
 				);
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VoiceInk.app/Contents/MacOS/VoiceInk";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MyVoice.app/Contents/MacOS/MyVoice";
 			};
-			name = Release;
+			name = Debug;
 		};
-		BEEBE7D24B196F1F9FF72DA9 /* Release */ = {
+		ED0D8F1DF1FA8606F5E7B2F3 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -376,7 +376,7 @@
 			};
 			name = Release;
 		};
-		BFEC44F3728D37F5FFE7EF46 /* Debug */ = {
+		F358B75387D1EF2F5411B345 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -393,27 +393,27 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/libs",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.firat.VoiceInkTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.firat.MyVoiceTests;
 				SDKROOT = macosx;
 				SWIFT_INCLUDE_PATHS = (
-					"$(PROJECT_DIR)/VoiceInk/whisper-bridge",
+					"$(PROJECT_DIR)/MyVoice/whisper-bridge",
 				);
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VoiceInk.app/Contents/MacOS/VoiceInk";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MyVoice.app/Contents/MacOS/MyVoice";
 			};
-			name = Debug;
+			name = Release;
 		};
-		EC9F6C4D46B0629EE4C9CF7C /* Release */ = {
+		F675F3AD7DA1C193DCD4F210 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = VoiceInk/VoiceInk.entitlements;
+				CODE_SIGN_ENTITLEMENTS = MyVoice/MyVoice.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/include",
 				);
-				INFOPLIST_FILE = VoiceInk/Info.plist;
+				INFOPLIST_FILE = MyVoice/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"@executable_path/../Frameworks",
 				);
@@ -423,10 +423,10 @@
 				OTHER_LDFLAGS = (
 					"-lwhisper",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.firat.VoiceInk;
+				PRODUCT_BUNDLE_IDENTIFIER = com.firat.MyVoice;
 				SDKROOT = macosx;
 				SWIFT_INCLUDE_PATHS = (
-					"$(PROJECT_DIR)/VoiceInk/whisper-bridge",
+					"$(PROJECT_DIR)/MyVoice/whisper-bridge",
 				);
 			};
 			name = Release;
@@ -434,34 +434,34 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		0761A439EEF628F5EE344AF5 /* Build configuration list for PBXNativeTarget "VoiceInk" */ = {
+		AB7C30718BF0186C02018AB7 /* Build configuration list for PBXNativeTarget "MyVoiceTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				37C280D4BDE82DA07CC0CBDC /* Debug */,
-				EC9F6C4D46B0629EE4C9CF7C /* Release */,
+				CE25FC0AF0842D21B0DC5883 /* Debug */,
+				F358B75387D1EF2F5411B345 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		0C2BB2BABDC264F74DEF6D75 /* Build configuration list for PBXProject "VoiceInk" */ = {
+		F0F147FFDB2AF6751B486691 /* Build configuration list for PBXNativeTarget "MyVoice" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				89B8C69BB409E8964EE6151E /* Debug */,
-				BEEBE7D24B196F1F9FF72DA9 /* Release */,
+				964F2314CA857007DC68A40E /* Debug */,
+				F675F3AD7DA1C193DCD4F210 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		59432354AF44F9615B7B6683 /* Build configuration list for PBXNativeTarget "VoiceInkTests" */ = {
+		F4169D3248D1191B259EB568 /* Build configuration list for PBXProject "MyVoice" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				BFEC44F3728D37F5FFE7EF46 /* Debug */,
-				AA6E84176CB208ACA7A1E790 /* Release */,
+				B2A990C01576EA180D8666A9 /* Debug */,
+				ED0D8F1DF1FA8606F5E7B2F3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 77A3E2B0D27A92A500CC8D6C /* Project object */;
+	rootObject = 0BC224550632D9EFC4BAE5E7 /* Project object */;
 }
