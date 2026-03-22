@@ -26,7 +26,7 @@ targets:
         GENERATE_INFOPLIST_FILE: false
         INFOPLIST_FILE: MyVoice/Info.plist
         CODE_SIGN_ENTITLEMENTS: MyVoice/MyVoice.entitlements
-        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGN_IDENTITY: "MyVoice Dev"
         HEADER_SEARCH_PATHS:
           - "$(PROJECT_DIR)/include"
         LIBRARY_SEARCH_PATHS:
