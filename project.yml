@@ -1,0 +1,56 @@
+name: VoiceInk
+options:
+  bundleIdPrefix: com.firat
+  deploymentTarget:
+    macOS: "14.0"
+  generateEmptyDirectories: true
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+
+targets:
+  VoiceInk:
+    type: application
+    platform: macOS
+    sources:
+      - path: VoiceInk
+        excludes:
+          - whisper-bridge
+          - Info.plist
+          - VoiceInk.entitlements
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.firat.VoiceInk
+        GENERATE_INFOPLIST_FILE: false
+        INFOPLIST_FILE: VoiceInk/Info.plist
+        CODE_SIGN_ENTITLEMENTS: VoiceInk/VoiceInk.entitlements
+        CODE_SIGN_IDENTITY: "-"
+        HEADER_SEARCH_PATHS:
+          - "$(PROJECT_DIR)/include"
+        LIBRARY_SEARCH_PATHS:
+          - "$(PROJECT_DIR)/libs"
+        OTHER_LDFLAGS:
+          - "-lwhisper"
+        SWIFT_INCLUDE_PATHS:
+          - "$(PROJECT_DIR)/VoiceInk/whisper-bridge"
+        LD_RUNPATH_SEARCH_PATHS:
+          - "@executable_path/../Frameworks"
+    postCompileScripts:
+      - script: |
+          # Copy dylibs to Frameworks
+          mkdir -p "${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}"
+          cp "${PROJECT_DIR}/libs/"*.dylib "${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/"
+        name: Copy whisper.cpp libraries
+
+  VoiceInkTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: VoiceInkTests
+    dependencies:
+      - target: VoiceInk
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.firat.VoiceInkTests
