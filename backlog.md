@@ -1,0 +1,28 @@
+# VoiceInk — Feature Backlog
+
+## Easy
+
+- [ ] **Sound on start/stop recording** — Play audio feedback when dictation starts and stops (`NSSound` or custom `.aiff`)
+- [ ] **Last transcription in menu** — Show the most recent dictated text in the menu bar dropdown
+- [ ] **Recording duration** — Display elapsed time in status text while recording ("Recording... 3s")
+- [ ] **Auto-launch at login** — Add VoiceInk to Login Items via `SMAppService`
+
+## Medium
+
+- [ ] **Menu bar icon animation** — Pulse or alternate icons during recording using a timer
+- [ ] **Configurable hotkey** — Let user pick a different keyboard shortcut (stored in JSON config)
+- [ ] **Notification on paste** — Brief macOS notification showing what was transcribed
+
+## Hard
+
+- [ ] **Blue overlay near cursor** — Floating indicator near the active text field using Accessibility API to detect cursor position. Works in most apps but fragile in edge cases.
+- [ ] **Live transcription preview** — Streaming whisper.cpp output in a floating window during recording. Requires switching from AVAudioRecorder to AVAudioEngine for real-time buffer access.
+
+## Post-MVP (from spec)
+
+- [ ] **Model selection** — Switch between base.en (speed) and large-v3-turbo (accuracy)
+- [ ] **Language switching** — Turkish, Russian support
+- [ ] **Dictionary hot-reload** — FSEvents watcher to reload dictionary.json on save without restarting
+- [ ] **Settings UI** — Native SwiftUI settings panel for dictionary management
+- [ ] **Audio device picker** — Select input microphone instead of system default
+- [ ] **Clipboard save/restore** — Save clipboard before paste, restore after (with proper timing)
