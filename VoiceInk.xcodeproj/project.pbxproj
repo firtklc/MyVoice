@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		11898A5518DE94973CB60CE6 /* DictionaryReplacerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7141040818B2620BA5AE3F93 /* DictionaryReplacerTests.swift */; };
 		13E87B86EB2125C8607849A6 /* VoiceInkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 857DA45D1CEE06AC9D2E988C /* VoiceInkApp.swift */; };
+		77DD97C0AB9DB47FA06A1894 /* DictionaryReplacer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B6ACDFEFE69AFD725999BC /* DictionaryReplacer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -26,6 +27,7 @@
 		857DA45D1CEE06AC9D2E988C /* VoiceInkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceInkApp.swift; sourceTree = "<group>"; };
 		B03DE0B860DDCE35CE8B2EA5 /* VoiceInkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VoiceInkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C2502B4CE99CBF2A108F411A /* VoiceInk.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VoiceInk.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F0B6ACDFEFE69AFD725999BC /* DictionaryReplacer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryReplacer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -58,6 +60,7 @@
 		FF8A4980BED04D554177B797 /* VoiceInk */ = {
 			isa = PBXGroup;
 			children = (
+				F0B6ACDFEFE69AFD725999BC /* DictionaryReplacer.swift */,
 				857DA45D1CEE06AC9D2E988C /* VoiceInkApp.swift */,
 			);
 			path = VoiceInk;
@@ -159,6 +162,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				77DD97C0AB9DB47FA06A1894 /* DictionaryReplacer.swift in Sources */,
 				13E87B86EB2125C8607849A6 /* VoiceInkApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -279,13 +283,23 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/include",
+				);
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/libs",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.firat.VoiceInkTests;
 				SDKROOT = macosx;
+				SWIFT_INCLUDE_PATHS = (
+					"$(PROJECT_DIR)/VoiceInk/whisper-bridge",
+				);
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VoiceInk.app/Contents/MacOS/VoiceInk";
 			};
 			name = Release;
@@ -351,13 +365,23 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/include",
+				);
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/libs",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.firat.VoiceInkTests;
 				SDKROOT = macosx;
+				SWIFT_INCLUDE_PATHS = (
+					"$(PROJECT_DIR)/VoiceInk/whisper-bridge",
+				);
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VoiceInk.app/Contents/MacOS/VoiceInk";
 			};
 			name = Debug;

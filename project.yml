@@ -54,3 +54,10 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.firat.VoiceInkTests
+        GENERATE_INFOPLIST_FILE: true
+        HEADER_SEARCH_PATHS:
+          - "$(PROJECT_DIR)/include"
+        LIBRARY_SEARCH_PATHS:
+          - "$(PROJECT_DIR)/libs"
+        SWIFT_INCLUDE_PATHS:
+          - "$(PROJECT_DIR)/VoiceInk/whisper-bridge"
