@@ -2,7 +2,7 @@ import AppKit
 
 /// Calculates overlay window position relative to the caret.
 enum OverlayPositioner {
-    private static let verticalOffset: CGFloat = 4
+    private static let edgePadding: CGFloat = 4
 
     static func position(for caretRect: CGRect, overlaySize: NSSize) -> NSPoint {
         // Position at upper-left of the caret
@@ -16,7 +16,7 @@ enum OverlayPositioner {
 
             // Don't go off left edge — flip to right of caret
             if x < screenFrame.origin.x {
-                x = max(screenFrame.origin.x, caretRect.origin.x + verticalOffset)
+                x = max(screenFrame.origin.x, caretRect.origin.x + edgePadding)
             }
 
             // Don't go off right edge
@@ -26,7 +26,7 @@ enum OverlayPositioner {
 
             // Don't go off top edge — flip below caret
             if y + overlaySize.height > screenFrame.maxY {
-                y = caretRect.origin.y - overlaySize.height - verticalOffset
+                y = caretRect.origin.y - overlaySize.height - edgePadding
             }
 
             // Don't go off bottom edge

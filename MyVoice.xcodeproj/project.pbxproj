@@ -19,7 +19,7 @@
 		B01CB48D78CC82B85B8DFEA1 /* DictionaryReplacer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1749D857037E62AF08B59AEA /* DictionaryReplacer.swift */; };
 		B1CC4E27CE6B6AE4A52F3C05 /* Paster.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35E56EB97DE64D6F0DA31416 /* Paster.swift */; };
 		CFD0E4CF121FD28E7EB7E0CE /* Recorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF52234D3EB1EDB2B6311AF9 /* Recorder.swift */; };
-		D44EA5AF953CC51BD822AB09 /* CursorLocatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA55693541DB47E917C852A7 /* CursorLocatorTests.swift */; };
+		D75CF7E6A0938F2EC9063479 /* CursorOverlayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 513C1FDE3EE5FE16CDFB6E70 /* CursorOverlayTests.swift */; };
 		DF3989A10F29B37AD9CEF014 /* HotkeyDisplayHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51580B7BE45E046AF7C999B /* HotkeyDisplayHelper.swift */; };
 		F9D005996BA5DDA38CCA5092 /* CursorLocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6AB03D4AB369FB42739E1DD /* CursorLocator.swift */; };
 /* End PBXBuildFile section */
@@ -39,6 +39,7 @@
 		2BCD2EC717262DDEEB5E2925 /* OverlayPositioner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayPositioner.swift; sourceTree = "<group>"; };
 		35E56EB97DE64D6F0DA31416 /* Paster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Paster.swift; sourceTree = "<group>"; };
 		40A0D45C1D239D586DA462A4 /* HotkeyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyTests.swift; sourceTree = "<group>"; };
+		513C1FDE3EE5FE16CDFB6E70 /* CursorOverlayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorOverlayTests.swift; sourceTree = "<group>"; };
 		5E08C83280F7F7E2101AC270 /* HotkeySettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeySettingsView.swift; sourceTree = "<group>"; };
 		60A72A4C6C5644F305467B56 /* WhisperEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhisperEngine.swift; sourceTree = "<group>"; };
 		AF950E7DB7D80D8518F4BDD5 /* DictionaryReplacerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryReplacerTests.swift; sourceTree = "<group>"; };
@@ -49,7 +50,6 @@
 		D3E41F64344310B6F525DAFB /* MyVoice.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyVoice.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D47C4F17DDA4C289B08EE5B2 /* RecordingOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingOverlay.swift; sourceTree = "<group>"; };
 		E6AB03D4AB369FB42739E1DD /* CursorLocator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorLocator.swift; sourceTree = "<group>"; };
-		EA55693541DB47E917C852A7 /* CursorLocatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorLocatorTests.swift; sourceTree = "<group>"; };
 		EF52234D3EB1EDB2B6311AF9 /* Recorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recorder.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -68,7 +68,7 @@
 		395809FCCCDE4EC0875458F7 /* MyVoiceTests */ = {
 			isa = PBXGroup;
 			children = (
-				EA55693541DB47E917C852A7 /* CursorLocatorTests.swift */,
+				513C1FDE3EE5FE16CDFB6E70 /* CursorOverlayTests.swift */,
 				AF950E7DB7D80D8518F4BDD5 /* DictionaryReplacerTests.swift */,
 				40A0D45C1D239D586DA462A4 /* HotkeyTests.swift */,
 			);
@@ -230,7 +230,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D44EA5AF953CC51BD822AB09 /* CursorLocatorTests.swift in Sources */,
+				D75CF7E6A0938F2EC9063479 /* CursorOverlayTests.swift in Sources */,
 				07DEF45560540C8C6724AD41 /* DictionaryReplacerTests.swift in Sources */,
 				52CACB94D958B42494DC15CA /* HotkeyTests.swift in Sources */,
 			);

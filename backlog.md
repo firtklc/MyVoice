@@ -13,7 +13,7 @@
 
 ## Hard
 
-- [ ] **Blue overlay near cursor** — Floating indicator near the active text field using Accessibility API to detect cursor position. Works in most apps but fragile in edge cases.
+- [x] **Blue overlay near cursor** — Floating indicator near the active text field using Accessibility API to detect cursor position. Works in most apps but fragile in edge cases.
 - [ ] **Live transcription preview** — Streaming whisper.cpp output in a floating window during recording. Requires switching from AVAudioRecorder to AVAudioEngine for real-time buffer access.
 
 ## Post-MVP (from spec)

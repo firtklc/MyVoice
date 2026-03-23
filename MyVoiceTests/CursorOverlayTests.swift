@@ -2,7 +2,7 @@ import Testing
 @testable import MyVoice
 import AppKit
 
-struct CursorLocatorTests {
+struct CursorOverlayTests {
     @Test func quartzToCocoaConversion() {
         // Quartz: origin top-left, Y increases downward
         // Cocoa: origin bottom-left, Y increases upward

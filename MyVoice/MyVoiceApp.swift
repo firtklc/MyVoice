@@ -197,12 +197,12 @@ final class AppState: ObservableObject {
     }
 
     private func stopAndTranscribe() {
+        recordingOverlay.hide()
         guard let url = recorder.stopRecording() else { return }
         durationTimer?.invalidate()
         durationTimer = nil
         menuBarLabel = nil
         NSSound(named: "Pop")?.play()
-        recordingOverlay.hide()
         isTranscribing = true
         menuBarIcon = "ellipsis.circle.fill"
         statusText = "Transcribing..."

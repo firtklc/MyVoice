@@ -7,12 +7,14 @@ import SwiftUI
 final class RecordingOverlay {
     private var panel: NSPanel?
     private let overlaySize = NSSize(width: 70, height: 40)
-    let audioLevel = AudioLevelMonitor()
+    private static let defaultCaretSize = CGSize(width: 2, height: 20)
+    private static let meteringInterval: TimeInterval = 0.05
+    private let audioLevel = AudioLevelMonitor()
     private var meteringTimer: Timer?
 
     func show() {
         let caretPosition = CursorLocator.getCaretPosition()
-        let caretRect = CGRect(origin: caretPosition, size: CGSize(width: 2, height: 20))
+        let caretRect = CGRect(origin: caretPosition, size: Self.defaultCaretSize)
         let position = OverlayPositioner.position(for: caretRect, overlaySize: overlaySize)
 
         if panel == nil {
@@ -32,7 +34,7 @@ final class RecordingOverlay {
 
     func startMetering(recorder: AVAudioRecorder) {
         recorder.isMeteringEnabled = true
-        meteringTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
+        meteringTimer = Timer.scheduledTimer(withTimeInterval: Self.meteringInterval, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 guard let self else { return }
                 recorder.updateMeters()
