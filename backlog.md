@@ -9,9 +9,7 @@
 
 ## Medium
 
-- [ ] **Menu bar icon animation** — Pulse or alternate icons during recording using a timer
 - [ ] **Configurable hotkey** — Let user pick a different keyboard shortcut (stored in JSON config)
-- [ ] **Notification on paste** — Brief macOS notification showing what was transcribed
 
 ## Hard
 

@@ -1,5 +1,10 @@
 import SwiftUI
+import KeyboardShortcuts
 import os
+
+extension KeyboardShortcuts.Name {
+    static let toggleRecording = Self("toggleRecording", default: .init(.d, modifiers: [.command, .shift]))
+}
 
 @main
 struct MyVoiceApp: App {
@@ -33,8 +38,12 @@ struct MenuBarView: View {
                 .font(.caption)
             Divider()
         }
-        Text("Cmd+Shift+D to dictate")
+        Text(appState.hotkeyHintText)
             .foregroundStyle(.secondary)
+        Divider()
+        Button("Change Hotkey...") {
+            appState.showHotkeySettings()
+        }
         Divider()
         Button("Quit") {
             NSApplication.shared.terminate(nil)
@@ -49,6 +58,7 @@ final class AppState: ObservableObject {
     @Published var menuBarLabel: String?
     @Published var statusText = "Ready"
     @Published var lastTranscription: String?
+    @Published var hotkeyHintText = "⌘⇧D to dictate"
     private var recordingDuration: Int = 0
 
     private let logger = Logger(subsystem: "com.firat.MyVoice", category: "AppState")
@@ -56,14 +66,15 @@ final class AppState: ObservableObject {
     private let recorder = Recorder()
     private let paster = Paster()
     private var replacer: DictionaryReplacer?
-    private var hotkeyManager: HotkeyManager?
     private var isTranscribing = false
     private var durationTimer: Timer?
+    private var settingsWindow: NSWindow?
 
     init() {
         loadWhisperEngine()
         loadDictionary()
         setupHotkey()
+        updateHotkeyHintText()
     }
 
     private func loadWhisperEngine() {
@@ -91,11 +102,45 @@ final class AppState: ObservableObject {
     }
 
     private func setupHotkey() {
-        hotkeyManager = HotkeyManager { [weak self] in
+        KeyboardShortcuts.onKeyDown(for: .toggleRecording) { [weak self] in
             Task { @MainActor in
                 self?.toggleRecording()
             }
         }
+    }
+
+    func updateHotkeyHintText() {
+        if let shortcut = KeyboardShortcuts.getShortcut(for: .toggleRecording) {
+            let display = HotkeyDisplayHelper.displayString(
+                keyCode: UInt16(shortcut.carbonKeyCode),
+                modifiers: shortcut.modifiers
+            )
+            hotkeyHintText = "\(display) to dictate"
+        } else {
+            hotkeyHintText = "No hotkey set"
+        }
+    }
+
+    func showHotkeySettings() {
+        if let window = settingsWindow {
+            window.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+            return
+        }
+
+        let settingsView = HotkeySettingsView(appState: self)
+        let hostingController = NSHostingController(rootView: settingsView)
+
+        let window = NSWindow(contentViewController: hostingController)
+        window.title = "MyVoice — Hotkey Settings"
+        window.styleMask = [.titled, .closable]
+        window.setContentSize(NSSize(width: 320, height: 120))
+        window.center()
+        window.isReleasedWhenClosed = false
+        window.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+
+        self.settingsWindow = window
     }
 
     private func toggleRecording() {

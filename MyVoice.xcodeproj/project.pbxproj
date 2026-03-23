@@ -8,12 +8,15 @@
 
 /* Begin PBXBuildFile section */
 		07DEF45560540C8C6724AD41 /* DictionaryReplacerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF950E7DB7D80D8518F4BDD5 /* DictionaryReplacerTests.swift */; };
+		17FB1EED5737DAAAB8D34299 /* HotkeySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E08C83280F7F7E2101AC270 /* HotkeySettingsView.swift */; };
 		2436A9C3B009ED234B9E8101 /* WhisperEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A72A4C6C5644F305467B56 /* WhisperEngine.swift */; };
-		3E1F672DC6312D2BECF3B14A /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88824BE8099C762C296BEF16 /* HotkeyManager.swift */; };
+		52CACB94D958B42494DC15CA /* HotkeyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40A0D45C1D239D586DA462A4 /* HotkeyTests.swift */; };
 		607B35308C276C94BEEF6E0B /* MyVoiceApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C36AAD210634418CF21BF1 /* MyVoiceApp.swift */; };
+		95BA3EB15268AABFE95F9B4F /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = 33B93BCB92F16DA02F66145B /* KeyboardShortcuts */; };
 		B01CB48D78CC82B85B8DFEA1 /* DictionaryReplacer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1749D857037E62AF08B59AEA /* DictionaryReplacer.swift */; };
 		B1CC4E27CE6B6AE4A52F3C05 /* Paster.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35E56EB97DE64D6F0DA31416 /* Paster.swift */; };
 		CFD0E4CF121FD28E7EB7E0CE /* Recorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF52234D3EB1EDB2B6311AF9 /* Recorder.swift */; };
+		DF3989A10F29B37AD9CEF014 /* HotkeyDisplayHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51580B7BE45E046AF7C999B /* HotkeyDisplayHelper.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,20 +32,34 @@
 /* Begin PBXFileReference section */
 		1749D857037E62AF08B59AEA /* DictionaryReplacer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryReplacer.swift; sourceTree = "<group>"; };
 		35E56EB97DE64D6F0DA31416 /* Paster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Paster.swift; sourceTree = "<group>"; };
+		40A0D45C1D239D586DA462A4 /* HotkeyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyTests.swift; sourceTree = "<group>"; };
+		5E08C83280F7F7E2101AC270 /* HotkeySettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeySettingsView.swift; sourceTree = "<group>"; };
 		60A72A4C6C5644F305467B56 /* WhisperEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhisperEngine.swift; sourceTree = "<group>"; };
-		88824BE8099C762C296BEF16 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
 		AF950E7DB7D80D8518F4BDD5 /* DictionaryReplacerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryReplacerTests.swift; sourceTree = "<group>"; };
 		B12C9A4784567F2FF8308AB7 /* MyVoiceTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MyVoiceTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B51580B7BE45E046AF7C999B /* HotkeyDisplayHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyDisplayHelper.swift; sourceTree = "<group>"; };
 		C5C36AAD210634418CF21BF1 /* MyVoiceApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyVoiceApp.swift; sourceTree = "<group>"; };
 		D3E41F64344310B6F525DAFB /* MyVoice.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyVoice.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF52234D3EB1EDB2B6311AF9 /* Recorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recorder.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C4479BC5B8910CDDF28A11EA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				95BA3EB15268AABFE95F9B4F /* KeyboardShortcuts in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		395809FCCCDE4EC0875458F7 /* MyVoiceTests */ = {
 			isa = PBXGroup;
 			children = (
 				AF950E7DB7D80D8518F4BDD5 /* DictionaryReplacerTests.swift */,
+				40A0D45C1D239D586DA462A4 /* HotkeyTests.swift */,
 			);
 			path = MyVoiceTests;
 			sourceTree = "<group>";
@@ -69,7 +86,8 @@
 			isa = PBXGroup;
 			children = (
 				1749D857037E62AF08B59AEA /* DictionaryReplacer.swift */,
-				88824BE8099C762C296BEF16 /* HotkeyManager.swift */,
+				B51580B7BE45E046AF7C999B /* HotkeyDisplayHelper.swift */,
+				5E08C83280F7F7E2101AC270 /* HotkeySettingsView.swift */,
 				C5C36AAD210634418CF21BF1 /* MyVoiceApp.swift */,
 				35E56EB97DE64D6F0DA31416 /* Paster.swift */,
 				EF52234D3EB1EDB2B6311AF9 /* Recorder.swift */,
@@ -105,6 +123,7 @@
 			buildPhases = (
 				49BF1265E0CB32DA3F9B4A54 /* Sources */,
 				18E4999A8677F3B0DBFF550B /* Copy whisper.cpp libraries */,
+				C4479BC5B8910CDDF28A11EA /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -112,6 +131,7 @@
 			);
 			name = MyVoice;
 			packageProductDependencies = (
+				33B93BCB92F16DA02F66145B /* KeyboardShortcuts */,
 			);
 			productName = MyVoice;
 			productReference = D3E41F64344310B6F525DAFB /* MyVoice.app */;
@@ -137,6 +157,9 @@
 			);
 			mainGroup = 4E1510E6B3EE7BFC32D707C5;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				645FD9ED13DE319FC9A88A37 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 70E758DC090473D487FCE990 /* Products */;
 			projectDirPath = "";
@@ -175,7 +198,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				B01CB48D78CC82B85B8DFEA1 /* DictionaryReplacer.swift in Sources */,
-				3E1F672DC6312D2BECF3B14A /* HotkeyManager.swift in Sources */,
+				DF3989A10F29B37AD9CEF014 /* HotkeyDisplayHelper.swift in Sources */,
+				17FB1EED5737DAAAB8D34299 /* HotkeySettingsView.swift in Sources */,
 				607B35308C276C94BEEF6E0B /* MyVoiceApp.swift in Sources */,
 				B1CC4E27CE6B6AE4A52F3C05 /* Paster.swift in Sources */,
 				CFD0E4CF121FD28E7EB7E0CE /* Recorder.swift in Sources */,
@@ -188,6 +212,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				07DEF45560540C8C6724AD41 /* DictionaryReplacerTests.swift in Sources */,
+				52CACB94D958B42494DC15CA /* HotkeyTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -462,6 +487,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		645FD9ED13DE319FC9A88A37 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sindresorhus/KeyboardShortcuts";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.2.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		33B93BCB92F16DA02F66145B /* KeyboardShortcuts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 645FD9ED13DE319FC9A88A37 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */;
+			productName = KeyboardShortcuts;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0BC224550632D9EFC4BAE5E7 /* Project object */;
 }
