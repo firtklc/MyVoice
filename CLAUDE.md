@@ -25,12 +25,14 @@ open $(find ~/Library/Developer/Xcode/DerivedData/MyVoice-*/Build/Products/Debug
 Linear pipeline of 5 components wired in `AppState` (`MyVoice/MyVoiceApp.swift`):
 
 ```
-HotkeyManager → Recorder → WhisperEngine → DictionaryReplacer → Paster
+KeyboardShortcuts → Recorder → WhisperEngine → DictionaryReplacer → Paster
 ```
 
 | Component | File | Responsibility |
 |---|---|---|
-| HotkeyManager | `MyVoice/HotkeyManager.swift` | Carbon `RegisterEventHotKey`, Cmd+Shift+D toggle |
+| KeyboardShortcuts | SPM dependency (sindresorhus/KeyboardShortcuts) | Global hotkey registration, configurable via recorder UI |
+| HotkeyDisplayHelper | `MyVoice/HotkeyDisplayHelper.swift` | Formats hotkey display strings (⌘⇧D) |
+| HotkeySettingsView | `MyVoice/HotkeySettingsView.swift` | SwiftUI settings window with shortcut recorder |
 | Recorder | `MyVoice/Recorder.swift` | AVAudioRecorder, 16kHz mono WAV to temp file |
 | WhisperEngine | `MyVoice/WhisperEngine.swift` | whisper.cpp C API wrapper, singleton, loads GGML model |
 | DictionaryReplacer | `MyVoice/DictionaryReplacer.swift` | Word-boundary regex replacement, JSON config |
@@ -59,7 +61,8 @@ HotkeyManager → Recorder → WhisperEngine → DictionaryReplacer → Paster
 ## Testing
 
 - 13 unit tests for DictionaryReplacer (Swift Testing framework)
-- System components (Recorder, Paster, HotkeyManager, WhisperEngine) tested via manual smoke tests
+- 9 unit tests for HotkeyDisplayHelper (Swift Testing framework)
+- System components (Recorder, Paster, WhisperEngine) tested via manual smoke tests
 - TDD required for all pure logic components
 
 ## Reference Docs

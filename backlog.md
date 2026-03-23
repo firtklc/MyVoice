@@ -9,7 +9,7 @@
 
 ## Medium
 
-- [ ] **Configurable hotkey** — Let user pick a different keyboard shortcut (stored in JSON config)
+- [x] **Configurable hotkey** — "Change Hotkey..." menu item with recorder UI, persisted via UserDefaults (KeyboardShortcuts library)
 
 ## Hard
 

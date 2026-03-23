@@ -58,7 +58,7 @@ final class AppState: ObservableObject {
     @Published var menuBarLabel: String?
     @Published var statusText = "Ready"
     @Published var lastTranscription: String?
-    @Published var hotkeyHintText = "⌘⇧D to dictate"
+    @Published var hotkeyHintText = ""
     private var recordingDuration: Int = 0
 
     private let logger = Logger(subsystem: "com.firat.MyVoice", category: "AppState")
