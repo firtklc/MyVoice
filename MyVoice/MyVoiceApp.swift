@@ -77,6 +77,7 @@ final class AppState: ObservableObject {
     private var isTranscribing = false
     private var durationTimer: Timer?
     private var settingsWindow: NSWindow?
+    private let recordingOverlay = RecordingOverlay()
 
     init() {
         loadWhisperEngine()
@@ -171,6 +172,10 @@ final class AppState: ObservableObject {
         do {
             let _ = try recorder.startRecording()
             NSSound(named: "Tink")?.play()
+            recordingOverlay.show()
+            if let audioRecorder = recorder.audioRecorder {
+                recordingOverlay.startMetering(recorder: audioRecorder)
+            }
             menuBarIcon = "mic.fill.badge.plus"
             recordingDuration = 0
             menuBarLabel = "0s"
@@ -192,6 +197,7 @@ final class AppState: ObservableObject {
     }
 
     private func stopAndTranscribe() {
+        recordingOverlay.hide()
         guard let url = recorder.stopRecording() else { return }
         durationTimer?.invalidate()
         durationTimer = nil
