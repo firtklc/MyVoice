@@ -10,6 +10,14 @@ extension KeyboardShortcuts.Name {
 struct MyVoiceApp: App {
     @StateObject private var appState = AppState()
 
+    init() {
+        // Prevent multiple instances
+        let runningApps = NSRunningApplication.runningApplications(withBundleIdentifier: Bundle.main.bundleIdentifier ?? "")
+        if runningApps.count > 1 {
+            NSApp.terminate(nil)
+        }
+    }
+
     var body: some Scene {
         MenuBarExtra {
             MenuBarView(appState: appState)
