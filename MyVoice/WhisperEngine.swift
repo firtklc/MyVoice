@@ -52,7 +52,7 @@ final class WhisperEngine {
         fparams.print_timestamps = false
         fparams.print_special    = false
         fparams.n_threads        = Int32(max(1, min(8, ProcessInfo.processInfo.processorCount - 2)))
-        fparams.language = ("en" as NSString).utf8String
+        fparams.language = ("auto" as NSString).utf8String
 
         let result = samples.withUnsafeBufferPointer { buf in
             whisper_full(context, fparams, buf.baseAddress, Int32(buf.count))

@@ -9,7 +9,13 @@ struct MyVoiceApp: App {
         MenuBarExtra {
             MenuBarView(appState: appState)
         } label: {
-            Image(systemName: appState.menuBarIcon)
+            HStack(spacing: 4) {
+                Image(systemName: appState.menuBarIcon)
+                if let label = appState.menuBarLabel {
+                    Text(label)
+                        .font(.caption)
+                }
+            }
         }
     }
 }
@@ -20,6 +26,13 @@ struct MenuBarView: View {
     var body: some View {
         Text(appState.statusText)
         Divider()
+        if let last = appState.lastTranscription {
+            let truncated = last.count > 80 ? String(last.prefix(80)) + "..." : last
+            Text("Last: \(truncated)")
+                .foregroundStyle(.secondary)
+                .font(.caption)
+            Divider()
+        }
         Text("Cmd+Shift+D to dictate")
             .foregroundStyle(.secondary)
         Divider()
@@ -33,7 +46,10 @@ struct MenuBarView: View {
 @MainActor
 final class AppState: ObservableObject {
     @Published var menuBarIcon = "mic.fill"
+    @Published var menuBarLabel: String?
     @Published var statusText = "Ready"
+    @Published var lastTranscription: String?
+    private var recordingDuration: Int = 0
 
     private let logger = Logger(subsystem: "com.firat.MyVoice", category: "AppState")
     private var whisperEngine: WhisperEngine?
@@ -42,6 +58,7 @@ final class AppState: ObservableObject {
     private var replacer: DictionaryReplacer?
     private var hotkeyManager: HotkeyManager?
     private var isTranscribing = false
+    private var durationTimer: Timer?
 
     init() {
         loadWhisperEngine()
@@ -100,8 +117,19 @@ final class AppState: ObservableObject {
         }
         do {
             let _ = try recorder.startRecording()
+            NSSound(named: "Tink")?.play()
             menuBarIcon = "mic.fill.badge.plus"
-            statusText = "Recording..."
+            recordingDuration = 0
+            menuBarLabel = "0s"
+            statusText = "Recording... 0s"
+            durationTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+                Task { @MainActor in
+                    guard let self, self.recorder.isRecording else { return }
+                    self.recordingDuration += 1
+                    self.menuBarLabel = "\(self.recordingDuration)s"
+                    self.statusText = "Recording... \(self.recordingDuration)s"
+                }
+            }
             logger.info("Recording started")
         } catch {
             logger.error("Failed to start recording: \(error.localizedDescription)")
@@ -112,6 +140,10 @@ final class AppState: ObservableObject {
 
     private func stopAndTranscribe() {
         guard let url = recorder.stopRecording() else { return }
+        durationTimer?.invalidate()
+        durationTimer = nil
+        menuBarLabel = nil
+        NSSound(named: "Pop")?.play()
         isTranscribing = true
         menuBarIcon = "ellipsis.circle.fill"
         statusText = "Transcribing..."
@@ -133,6 +165,7 @@ final class AppState: ObservableObject {
                 await MainActor.run {
                     menuBarIcon = "mic.fill"
                     statusText = "Ready"
+                    lastTranscription = fixedText
                     isTranscribing = false
                 }
             } catch {
