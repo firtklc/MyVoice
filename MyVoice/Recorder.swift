@@ -6,7 +6,7 @@ enum RecorderError: Error {
 }
 
 final class Recorder {
-    private var audioRecorder: AVAudioRecorder?
+    private(set) var audioRecorder: AVAudioRecorder?
     private(set) var isRecording = false
     private(set) var recordingURL: URL?
 
