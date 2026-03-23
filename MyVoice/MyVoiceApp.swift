@@ -11,8 +11,8 @@ struct MyVoiceApp: App {
         } label: {
             HStack(spacing: 4) {
                 Image(systemName: appState.menuBarIcon)
-                if appState.menuBarLabel != nil {
-                    Text(appState.menuBarLabel!)
+                if let label = appState.menuBarLabel {
+                    Text(label)
                         .font(.caption)
                 }
             }
@@ -49,7 +49,7 @@ final class AppState: ObservableObject {
     @Published var menuBarLabel: String?
     @Published var statusText = "Ready"
     @Published var lastTranscription: String?
-    @Published var recordingDuration: Int = 0
+    private var recordingDuration: Int = 0
 
     private let logger = Logger(subsystem: "com.firat.MyVoice", category: "AppState")
     private var whisperEngine: WhisperEngine?

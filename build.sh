@@ -13,6 +13,8 @@ if [ -z "$APP_SRC" ]; then
 fi
 
 echo "Deploying to /Applications..."
+pkill -x MyVoice 2>/dev/null || true
+sleep 1
 rm -rf /Applications/MyVoice.app
 cp -R "$APP_SRC" /Applications/MyVoice.app
 

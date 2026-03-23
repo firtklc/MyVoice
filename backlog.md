@@ -1,11 +1,11 @@
-# VoiceInk — Feature Backlog
+# MyVoice — Feature Backlog
 
 ## Easy
 
-- [ ] **Sound on start/stop recording** — Play audio feedback when dictation starts and stops (`NSSound` or custom `.aiff`)
-- [ ] **Last transcription in menu** — Show the most recent dictated text in the menu bar dropdown
-- [ ] **Recording duration** — Display elapsed time in status text while recording ("Recording... 3s")
-- [ ] **Auto-launch at login** — Add VoiceInk to Login Items via `SMAppService`
+- [x] **Sound on start/stop recording** — Play audio feedback when dictation starts and stops (`NSSound`)
+- [x] **Last transcription in menu** — Show the most recent dictated text in the menu bar dropdown
+- [x] **Recording duration** — Display elapsed time next to menu bar icon while recording ("3s")
+- [ ] **Auto-launch at login** — Add MyVoice to Login Items via `SMAppService`
 
 ## Medium
 
@@ -21,7 +21,7 @@
 ## Post-MVP (from spec)
 
 - [ ] **Model selection** — Switch between base.en (speed) and large-v3-turbo (accuracy)
-- [ ] **Language switching** — Turkish, Russian support
+- [x] **Language switching** — Auto-detection enabled, supports 99 languages including Turkish and Russian
 - [ ] **Dictionary hot-reload** — FSEvents watcher to reload dictionary.json on save without restarting
 - [ ] **Settings UI** — Native SwiftUI settings panel for dictionary management
 - [ ] **Audio device picker** — Select input microphone instead of system default
