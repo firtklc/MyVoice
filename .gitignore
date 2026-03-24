@@ -3,3 +3,6 @@ xcuserdata/
 DerivedData/
 *.xcworkspace/xcuserdata/
 build/
+
+# Backlogs (working docs, not code)
+backlog.md
