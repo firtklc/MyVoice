@@ -46,7 +46,7 @@ KeyboardShortcuts → Recorder → WhisperEngine → DictionaryReplacer → Past
 - **whisper.cpp headers:** `include/` (whisper.h, ggml.h, etc.)
 - **Module map:** `MyVoice/whisper-bridge/module.modulemap`
 - **XcodeGen config:** `project.yml`
-- **Feature backlog:** `backlog.md`
+- **Feature backlog:** `backlog.md` (git-ignored — lives locally only, not in repo)
 
 ## Important Rules
 
@@ -62,6 +62,7 @@ KeyboardShortcuts → Recorder → WhisperEngine → DictionaryReplacer → Past
 
 - 13 unit tests for DictionaryReplacer (Swift Testing framework)
 - 9 unit tests for HotkeyDisplayHelper (Swift Testing framework)
+- 6 unit tests for CursorOverlay/CoordinateConverter (Swift Testing framework)
 - System components (Recorder, Paster, WhisperEngine) tested via manual smoke tests
 - TDD required for all pure logic components
 

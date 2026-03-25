@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xcodegen *)",
+      "Bash(xcodebuild *)",
+      "Bash(codesign *)",
+      "Bash(open *.app)",
+      "Bash(pkill -x MyVoice)"
+    ]
+  }
+}
