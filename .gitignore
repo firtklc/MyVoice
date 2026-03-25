@@ -4,5 +4,8 @@ DerivedData/
 *.xcworkspace/xcuserdata/
 build/
 
+# Build artifacts
+*.profraw
+
 # Backlogs (working docs, not code)
 backlog.md

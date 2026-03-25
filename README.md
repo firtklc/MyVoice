@@ -32,7 +32,7 @@ Cmd+Shift+D → Record → whisper.cpp → Dictionary Replace → Auto-Paste
 
 ## Tech Stack
 
-Swift 6 | SwiftUI | whisper.cpp | Carbon API | AVFoundation | XcodeGen
+Swift 6 | SwiftUI | whisper.cpp | KeyboardShortcuts | AVFoundation | XcodeGen
 
 ## Requirements
 
