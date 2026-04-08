@@ -245,11 +245,14 @@ final class AppState: ObservableObject {
 
     // MARK: - Escape to Cancel
 
+    private static let escapeKeyCode: UInt16 = 53
+
     private func installEscapeMonitor() {
         removeEscapeMonitor()
 
+        // Global: catches Escape when another app is focused (user dictating into editor, etc.)
         if let global = NSEvent.addGlobalMonitorForEvents(matching: .keyDown, handler: { [weak self] event in
-            if event.keyCode == 53 {
+            if event.keyCode == AppState.escapeKeyCode {
                 Task { @MainActor in
                     self?.cancelRecording()
                 }
@@ -258,8 +261,9 @@ final class AppState: ObservableObject {
             escapeMonitors.append(global)
         }
 
+        // Local: catches Escape when menu bar or settings window is active
         if let local = NSEvent.addLocalMonitorForEvents(matching: .keyDown, handler: { [weak self] event in
-            if event.keyCode == 53 {
+            if event.keyCode == AppState.escapeKeyCode {
                 Task { @MainActor in
                     self?.cancelRecording()
                 }
@@ -283,6 +287,7 @@ final class AppState: ObservableObject {
 
         removeEscapeMonitor()
         recordingOverlay.hide()
+        // URL intentionally discarded — we skip transcription and delete the file via cleanup()
         let _ = recorder.stopRecording()
         durationTimer?.invalidate()
         durationTimer = nil
@@ -294,10 +299,10 @@ final class AppState: ObservableObject {
         statusText = "Cancelled"
         logger.info("Recording cancelled by Escape")
 
-        Task { @MainActor in
+        Task { @MainActor [weak self] in
             try? await Task.sleep(for: .seconds(1.5))
-            if self.statusText == "Cancelled" {
-                self.statusText = "Ready"
+            if self?.statusText == "Cancelled" {
+                self?.statusText = "Ready"
             }
         }
     }
