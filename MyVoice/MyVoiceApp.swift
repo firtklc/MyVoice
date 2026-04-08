@@ -78,6 +78,7 @@ final class AppState: ObservableObject {
     private var durationTimer: Timer?
     private var settingsWindow: NSWindow?
     private let recordingOverlay = RecordingOverlay()
+    private var escapeMonitors: [Any] = []
 
     init() {
         loadWhisperEngine()
@@ -188,6 +189,7 @@ final class AppState: ObservableObject {
                     self.statusText = "Recording... \(self.recordingDuration)s"
                 }
             }
+            installEscapeMonitor()
             logger.info("Recording started")
         } catch {
             logger.error("Failed to start recording: \(error.localizedDescription)")
@@ -197,6 +199,7 @@ final class AppState: ObservableObject {
     }
 
     private func stopAndTranscribe() {
+        removeEscapeMonitor()
         recordingOverlay.hide()
         guard let url = recorder.stopRecording() else { return }
         durationTimer?.invalidate()
@@ -237,6 +240,65 @@ final class AppState: ObservableObject {
             }
 
             recorder.cleanup()
+        }
+    }
+
+    // MARK: - Escape to Cancel
+
+    private func installEscapeMonitor() {
+        removeEscapeMonitor()
+
+        if let global = NSEvent.addGlobalMonitorForEvents(matching: .keyDown, handler: { [weak self] event in
+            if event.keyCode == 53 {
+                Task { @MainActor in
+                    self?.cancelRecording()
+                }
+            }
+        }) {
+            escapeMonitors.append(global)
+        }
+
+        if let local = NSEvent.addLocalMonitorForEvents(matching: .keyDown, handler: { [weak self] event in
+            if event.keyCode == 53 {
+                Task { @MainActor in
+                    self?.cancelRecording()
+                }
+                return nil
+            }
+            return event
+        }) {
+            escapeMonitors.append(local)
+        }
+    }
+
+    private func removeEscapeMonitor() {
+        for monitor in escapeMonitors {
+            NSEvent.removeMonitor(monitor)
+        }
+        escapeMonitors.removeAll()
+    }
+
+    private func cancelRecording() {
+        guard recorder.isRecording else { return }
+
+        removeEscapeMonitor()
+        recordingOverlay.hide()
+        let _ = recorder.stopRecording()
+        durationTimer?.invalidate()
+        durationTimer = nil
+        menuBarLabel = nil
+        recorder.cleanup()
+
+        NSSound(named: "Funk")?.play()
+        menuBarIcon = "mic.fill"
+        statusText = "Cancelled"
+        logger.info("Recording cancelled by Escape")
+
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(1.5))
+            if self.statusText == "Cancelled" {
+                self.statusText = "Ready"
+            }
         }
     }
 }
