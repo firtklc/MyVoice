@@ -51,7 +51,7 @@ KeyboardShortcuts → Recorder → WhisperEngine → DictionaryReplacer → Past
 ## Important Rules
 
 - **XcodeGen:** Always run `xcodegen generate` after modifying `project.yml` or adding/removing Swift files
-- **Signing:** Uses self-signed "MyVoice Dev" certificate — do NOT change to ad-hoc (`-`) or permissions reset every rebuild
+- **Signing:** Uses Apple Developer certificate (Team ID: M9UJ296PUQ, automatic signing) — do NOT change to ad-hoc (`-`) or permissions reset every rebuild
 - **App Sandbox:** Disabled — required for CGEvent paste
 - **Swift 6:** Do NOT use `DispatchQueue.main.asyncAfter` — use `Task { @MainActor in }` instead
 - **whisper.cpp threading:** Never call `whisper_full()` concurrently on the same context — `isTranscribing` flag guards this
