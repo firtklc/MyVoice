@@ -52,10 +52,14 @@ final class WhisperEngine {
         fparams.print_timestamps = false
         fparams.print_special    = false
         fparams.n_threads        = Int32(max(1, min(8, ProcessInfo.processInfo.processorCount - 2)))
-        fparams.language = (language as NSString).utf8String
 
-        let result = samples.withUnsafeBufferPointer { buf in
-            whisper_full(context, fparams, buf.baseAddress, Int32(buf.count))
+        // `fparams.language` is an UnsafePointer<CChar> read by whisper_full;
+        // the backing storage must outlive that call. withCString guarantees it.
+        let result: Int32 = language.withCString { langCStr in
+            fparams.language = langCStr
+            return samples.withUnsafeBufferPointer { buf in
+                whisper_full(context, fparams, buf.baseAddress, Int32(buf.count))
+            }
         }
 
         guard result == 0 else {
