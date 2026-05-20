@@ -29,7 +29,7 @@ final class WhisperEngine {
         }
     }
 
-    func transcribe(wavFileURL: URL) throws -> String {
+    func transcribe(wavFileURL: URL, language: String) throws -> String {
         guard let context else {
             throw WhisperEngineError.modelLoadFailed("No context")
         }
@@ -52,7 +52,7 @@ final class WhisperEngine {
         fparams.print_timestamps = false
         fparams.print_special    = false
         fparams.n_threads        = Int32(max(1, min(8, ProcessInfo.processInfo.processorCount - 2)))
-        fparams.language = ("auto" as NSString).utf8String
+        fparams.language = (language as NSString).utf8String
 
         let result = samples.withUnsafeBufferPointer { buf in
             whisper_full(context, fparams, buf.baseAddress, Int32(buf.count))

@@ -49,7 +49,20 @@ struct MenuBarView: View {
         Text(appState.hotkeyHintText)
             .foregroundStyle(.secondary)
         Divider()
-        Button("Change Hotkey...") {
+        Menu("Language") {
+            ForEach(LanguagePreference.allCases) { pref in
+                Button {
+                    appState.languagePreference = pref
+                } label: {
+                    if appState.languagePreference == pref {
+                        Label(pref.displayName, systemImage: "checkmark")
+                    } else {
+                        Text(pref.displayName)
+                    }
+                }
+            }
+        }
+        Button("Settings...") {
             appState.showHotkeySettings()
         }
         Divider()
@@ -67,6 +80,9 @@ final class AppState: ObservableObject {
     @Published var statusText = "Ready"
     @Published var lastTranscription: String?
     @Published var hotkeyHintText = ""
+    @Published var languagePreference: LanguagePreference = LanguagePreference.load() {
+        didSet { languagePreference.save() }
+    }
     private var recordingDuration: Int = 0
 
     private let logger = Logger(subsystem: "com.firat.MyVoice", category: "AppState")
@@ -138,13 +154,13 @@ final class AppState: ObservableObject {
             return
         }
 
-        let settingsView = HotkeySettingsView(appState: self)
+        let settingsView = SettingsView(appState: self)
         let hostingController = NSHostingController(rootView: settingsView)
 
         let window = NSWindow(contentViewController: hostingController)
-        window.title = "MyVoice — Hotkey Settings"
+        window.title = "MyVoice — Settings"
         window.styleMask = [.titled, .closable]
-        window.setContentSize(NSSize(width: 320, height: 120))
+        window.setContentSize(NSSize(width: 380, height: 240))
         window.center()
         window.isReleasedWhenClosed = false
         window.makeKeyAndOrderFront(nil)
@@ -214,7 +230,7 @@ final class AppState: ObservableObject {
         Task {
             do {
                 guard let engine = whisperEngine else { return }
-                let rawText = try engine.transcribe(wavFileURL: url)
+                let rawText = try engine.transcribe(wavFileURL: url, language: languagePreference.rawValue)
                 logger.info("Raw transcription: \(rawText)")
 
                 let fixedText = replacer?.replace(rawText) ?? rawText
