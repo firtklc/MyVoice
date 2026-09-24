@@ -20,7 +20,9 @@ public class EndToEndTests
         using var target = new Desktop.TargetWindow();
         Desktop.Focus(target.Handle);
         var wav = Path.Combine(AppContext.BaseDirectory, "Fixtures", "short.wav");
-        using var app = Process.Start(new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "MyVoice.exe"),
+        // MYVOICE_EXE=%LOCALAPPDATA%\Programs\MyVoice\MyVoice.exe checks the installed Release build instead.
+        var exe = Environment.GetEnvironmentVariable("MYVOICE_EXE") is { Length: > 0 } installed ? installed : Path.Combine(AppContext.BaseDirectory, "MyVoice.exe");
+        using var app = Process.Start(new ProcessStartInfo(exe,
             $"--simulate \"{wav}\" --target \"{target.Title}\" --stall 2") { UseShellExecute = false })!;
         Assert.True(app.WaitForExit(TimeSpan.FromSeconds(60)), "MyVoice --simulate did not finish within 60 s");
         Assert.Equal(0, app.ExitCode);
