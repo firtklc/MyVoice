@@ -304,6 +304,33 @@ public class SessionStateMachineTests
     }
 
     [Fact]
+    public void QuietAudioIsNotSentToWhisper()
+    {
+        // Whisper turns silence into "Thank you." (seen in WhisperEngineTests), so room noise must never be transcribed.
+        // Peak 100/32768 = -50 dBFS; idle AirPods measured -66 to -84, speech -10 to -16.
+        var m = AwaitingAudio();
+        Assert.Equal([new UnregisterEsc(), new Notify("Nothing heard", NoteKind.Info)],
+            m.AudioCaptured(1, new CapturedAudio(Enumerable.Repeat((short)100, 48000).ToArray())));
+        Assert.Equal(AppState.Ready, m.State);
+    }
+
+    [Fact]
+    public void QuietSpeechAboveTheGateIsTranscribed()
+    {
+        var m = AwaitingAudio();
+        var audio = new CapturedAudio(Enumerable.Repeat((short)300, 48000).ToArray()); // -41 dBFS
+        Assert.Equal([new UnregisterEsc(), new Transcribe(1, audio)], m.AudioCaptured(1, audio));
+    }
+
+    [Fact]
+    public void PeakLevelIsInDbfs()
+    {
+        Assert.Equal(-6.02, new CapturedAudio([0, -16384, 100]).PeakDbfs, 2);
+        Assert.Equal(double.NegativeInfinity, new CapturedAudio(new short[10]).PeakDbfs);
+        Assert.Equal(0, new CapturedAudio([short.MinValue]).PeakDbfs, 2);
+    }
+
+    [Fact]
     public void VeryShortAudioIsNothingRecorded()
     {
         var m = AwaitingAudio();

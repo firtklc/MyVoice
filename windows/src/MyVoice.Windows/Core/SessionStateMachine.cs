@@ -12,6 +12,16 @@ public sealed record CapturedAudio(short[] Samples)
     public const int SampleRate = 16000;
     public double Seconds => Samples.Length / (double)SampleRate;
     public bool IsAllZero => Samples.All(s => s == 0);
+
+    /// <summary>Loudest sample relative to full scale; −∞ for digital silence.</summary>
+    public double PeakDbfs
+    {
+        get
+        {
+            var peak = Samples.Length == 0 ? 0 : Samples.Max(s => Math.Abs((int)s));
+            return peak == 0 ? double.NegativeInfinity : 20 * Math.Log10(peak / 32768.0);
+        }
+    }
 }
 
 public abstract record Command;
@@ -36,6 +46,10 @@ public sealed class SessionStateMachine
 {
     /// <summary>Bluetooth mic audio arrives late and people press stop while saying the last word (UAT lost ~0.6 s).</summary>
     public const double TailSeconds = 0.8;
+
+    /// <summary>Recordings whose loudest moment is below this are room noise: Whisper turns them into "Thank you.".
+    /// Measured: idle AirPods −66 to −84 dBFS, speech −10 to −16 dBFS.</summary>
+    public const double SilenceGateDbfs = -45;
 
     enum Phase { Idle, Connecting, Recording, Tail, AwaitingAudio, Transcribing }
 
@@ -186,6 +200,11 @@ public sealed class SessionStateMachine
         {
             _phase = Phase.Idle;
             return [new UnregisterEsc(), new Notify("Mic muted or blocked — check Settings › Privacy & security › Microphone", NoteKind.Warning)];
+        }
+        if (audio.PeakDbfs < SilenceGateDbfs)
+        {
+            _phase = Phase.Idle;
+            return [new UnregisterEsc(), new Notify("Nothing heard", NoteKind.Info)];
         }
         _phase = Phase.Transcribing;
         return [new UnregisterEsc(), new Transcribe(session, audio)];
