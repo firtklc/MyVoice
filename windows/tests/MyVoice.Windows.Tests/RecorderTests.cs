@@ -16,7 +16,7 @@ sealed class FakeSource : IAudioSource
     public void Start() { if (StartError is not null) throw StartError; Started = true; }
     public void Stop() => StopRequested = true;
     public void Dispose() => Disposed = true;
-    public void Emit(short value, int count = 320) => Samples?.Invoke(Enumerable.Repeat(value, count).ToArray());
+    public void Emit(short value, int count = 320, bool engineSilence = false) => Samples?.Invoke(Enumerable.Repeat(value, count).ToArray(), engineSilence);
     public void RaiseStopped(Exception? error = null) => Stopped?.Invoke(error);
 }
 
@@ -58,6 +58,19 @@ public class RecorderTests
         Speak(r, 0.3);
         Assert.Empty(_events);
         Speak(r, 0.4);
+        Assert.Equal(["ready 1"], _events);
+    }
+
+    [Fact]
+    public void SilencePaddedByTheAudioEngineDoesNotCountAsAudioFlowing()
+    {
+        // Code review finding: packets flagged Silent by Windows are not from the device; if a cold headset's
+        // stall were padded that way, "speak now" would come too early and the first words would be lost.
+        var r = Make();
+        r.Open(1);
+        for (var end = _now + 3; _now < end; _now += 0.02) { Source.Emit(0, engineSilence: true); r.Poll(); }
+        Assert.Empty(_events);
+        Speak(r, 0.6);
         Assert.Equal(["ready 1"], _events);
     }
 

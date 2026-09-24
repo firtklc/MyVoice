@@ -37,7 +37,7 @@ public sealed class DictionaryReplacer
             status = $"Dictionary loaded: {replacer.Count} entries";
             return replacer;
         }
-        catch (Exception e) when (e is JsonException or IOException)
+        catch (Exception e) when (e is JsonException or IOException or UnauthorizedAccessException)
         {
             status = $"Dictionary at {path} is not valid ({e.Message}) — no replacements";
             return Empty;

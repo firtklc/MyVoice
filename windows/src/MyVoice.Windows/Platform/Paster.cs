@@ -47,7 +47,7 @@ sealed class Paster
         taskbar = TaskbarClasses.Contains(className);
         string process;
         try { process = Process.GetProcessById((int)pid).ProcessName; }
-        catch (ArgumentException) { process = $"pid {pid}"; }
+        catch (Exception) { process = $"pid {pid}"; } // diagnostics only: must never stop the paste
         return $"{process} ({className})";
     }
 }

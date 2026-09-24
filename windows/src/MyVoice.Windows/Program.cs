@@ -8,9 +8,9 @@ static class Program
     static int Main(string[] args)
     {
         var options = Options.Parse(args);
-        if (options.SimulateWav is not null && options.TargetTitle is null)
+        if (options.Error is not null)
         {
-            Log.Error("--simulate needs --target \"<window title>\": a simulated dictation never types into an arbitrary window");
+            Log.Error(options.Error);
             return 4;
         }
 

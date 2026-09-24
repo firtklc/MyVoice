@@ -15,7 +15,7 @@ public class EndToEndTests
     public void SimulatedDictationPastesTheCorrectedTextOnce()
     {
         if (!File.Exists(AppPaths.Model)) Assert.Skip($"no model at {AppPaths.Model}");
-        if (!File.ReadAllText(AppPaths.Dictionary).Contains("\"Claude\"")) Assert.Skip("dictionary.json has no cloud → Claude entry");
+        if (!File.Exists(AppPaths.Dictionary) || !File.ReadAllText(AppPaths.Dictionary).Contains("\"Claude\"")) Assert.Skip("dictionary.json has no cloud → Claude entry");
 
         using var target = new Desktop.TargetWindow();
         Desktop.Focus(target.Handle);

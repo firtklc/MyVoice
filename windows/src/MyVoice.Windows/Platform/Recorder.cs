@@ -44,10 +44,10 @@ sealed class Recorder(Func<IAudioSource> createSource, Action<Action> post, Func
     {
         var source = createSource();
         var take = new Take(session, source, now());
-        source.Samples += samples =>
+        source.Samples += (samples, engineSilence) =>
         {
             var at = now();
-            take.Readiness.AddBlock(at, samples.Length);
+            if (!engineSilence) take.Readiness.AddBlock(at, samples.Length); // padding isn't the device delivering
             take.Buffer.Append(at, samples);
             var peak = 0;
             foreach (var s in samples) peak = Math.Max(peak, Math.Abs((int)s));

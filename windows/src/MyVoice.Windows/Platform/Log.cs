@@ -25,9 +25,9 @@ static class Log
                     File.Move(Path, System.IO.Path.ChangeExtension(Path, ".1.log"), overwrite: true);
                 File.AppendAllText(Path, line);
             }
-            catch (IOException)
+            catch (Exception)
             {
-                // Logging must never break dictation.
+                // Logging must never break dictation — it also runs inside whisper.cpp's native log callback.
             }
         }
     }

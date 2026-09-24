@@ -8,20 +8,32 @@ namespace MyVoice.Windows;
 /// <summary>Command-line options for dev testing without speaking: --simulate feeds a WAV through the recorder
 /// instead of the mic, dictates it once into the window titled --target (required, and nowhere else), then quits.
 /// --stall imitates a cold Bluetooth headset.</summary>
-sealed record Options(string? SimulateWav, string? TargetTitle, double StallSeconds)
+sealed record Options(string? SimulateWav, string? TargetTitle, double StallSeconds, string? Error)
 {
     public static Options Parse(string[] args)
     {
         string? wav = null, target = null;
         double stall = 0;
-        for (var i = 0; i < args.Length - 1; i++)
+        for (var i = 0; i < args.Length; i++)
         {
-            if (args[i] == "--simulate") wav = args[i + 1];
-            if (args[i] == "--target") target = args[i + 1];
-            if (args[i] == "--stall") stall = double.Parse(args[i + 1], CultureInfo.InvariantCulture);
+            var name = args[i];
+            if (name is not ("--simulate" or "--target" or "--stall")) return Fail($"unknown argument {name}");
+            if (i + 1 >= args.Length) return Fail($"{name} needs a value");
+            var value = args[++i];
+            switch (name)
+            {
+                case "--simulate": wav = value; break;
+                case "--target": target = value; break;
+                case "--stall" when !double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out stall):
+                    return Fail($"--stall needs seconds like 2.5, not '{value}'");
+            }
         }
-        return new(wav, target, stall);
+        if (wav is not null && target is null)
+            return Fail("--simulate needs --target \"<window title>\": a simulated dictation never types into an arbitrary window");
+        return new(wav, target, stall, null);
     }
+
+    static Options Fail(string error) => new(null, null, 0, error);
 }
 
 /// <summary>
@@ -46,10 +58,11 @@ sealed class TrayApp : ApplicationContext
     readonly ToolStripMenuItem _lastItem = new() { Enabled = false, Visible = false };
     readonly System.Windows.Forms.Timer _timer = new() { Interval = 50 };
     readonly Stopwatch _clock = Stopwatch.StartNew();
+    readonly CommandQueue _commands;
 
     WhisperEngine? _engine;
     WavFileSource? _simulatedMic;
-    bool _simulationStarted, _simulationStopped, _exiting;
+    bool _simulationStarted, _simulationStopped, _simulationQuitting, _exitStarted;
     string? _note;
     double _noteUntil, _recordingSince;
 
@@ -59,6 +72,7 @@ sealed class TrayApp : ApplicationContext
     public TrayApp(Options options)
     {
         _options = options;
+        _commands = new CommandQueue(Handle);
         var ui = SynchronizationContext.Current!;
         Log.Info($"MyVoice {Application.ProductVersion} starting on {Environment.OSVersion}{(Simulating ? $" — simulating with {options.SimulateWav}" : "")}");
 
@@ -86,7 +100,7 @@ sealed class TrayApp : ApplicationContext
         _timer.Tick += (_, _) => OnTick();
         _timer.Start();
         UpdateUi();
-        _ = LoadModelAsync();
+        Forget(LoadModelAsync(), "model load");
     }
 
     IAudioSource CreateMic()
@@ -104,7 +118,8 @@ sealed class TrayApp : ApplicationContext
             _engine = await Task.Run(() => WhisperEngine.Load(AppPaths.Model));
             Log.Info(Invariant($"model loaded in {watch.ElapsedMilliseconds} ms, runtime {_engine.Runtime}"));
             watch.Restart();
-            await Task.Run(_engine.WarmUpAsync);
+            var engine = _engine;
+            await Task.Run(() => engine.WarmUpAsync(_settings.Language));
             Log.Info(Invariant($"warm-up transcription {watch.ElapsedMilliseconds} ms"));
             if (_engine.Runtime != "Vulkan")
                 _tray.ShowBalloonTip(8000, "MyVoice", "The GPU isn't available, so MyVoice runs on the CPU — transcription will take several seconds.", ToolTipIcon.Warning);
@@ -121,55 +136,65 @@ sealed class TrayApp : ApplicationContext
 
     // ---- commands from the state machine ----
 
+    /// <summary>Runs the state machine's commands in order; commands raised while handling one queue behind the rest.</summary>
     void Execute(IReadOnlyList<Command> commands)
     {
-        foreach (var command in commands)
-        {
-            switch (command)
-            {
-                case OpenMic(var session):
-                    try
-                    {
-                        _recorder.Open(session);
-                        Log.Info($"session {session}: mic opened — {_recorder.DeviceName}");
-                    }
-                    catch (MicOpenException e)
-                    {
-                        Log.Warn($"session {session}: {e.Message} ({e.InnerException?.Message})");
-                        Execute(_machine.MicOpenFailed(session, e.Message));
-                    }
-                    break;
-                case CloseMic(var session, var keep):
-                    _recorder.Close(session, keep);
-                    break;
-                case StartTail(var session):
-                    _ = TailAsync(session);
-                    break;
-                case RegisterEsc:
-                    if (!Simulating && !_hotkeys.Register(EscId, HotkeyModifiers.None, Keys.Escape, out var error))
-                        Log.Warn($"Esc could not be registered (error {error}) — cancel from the tray instead");
-                    break;
-                case UnregisterEsc:
-                    _hotkeys.Unregister(EscId);
-                    break;
-                case PlaySound(var sound):
-                    _sounds.Play(sound);
-                    break;
-                case Transcribe(var session, var audio):
-                    _ = TranscribeAsync(session, audio);
-                    break;
-                case Paste(var text):
-                    _ = PasteAsync(text);
-                    break;
-                case Notify(var message, var kind):
-                    ShowNote(message, kind);
-                    break;
-                case ExitApp:
-                    _ = ExitAsync();
-                    break;
-            }
-        }
+        _commands.Run(commands);
         UpdateUi();
+    }
+
+    void Handle(Command command)
+    {
+        switch (command)
+        {
+            case OpenMic(var session):
+                try
+                {
+                    _recorder.Open(session);
+                    Log.Info($"session {session}: mic opened — {_recorder.DeviceName}");
+                }
+                catch (MicOpenException e)
+                {
+                    Log.Warn($"session {session}: {e.Message} ({e.InnerException?.Message})");
+                    Execute(_machine.MicOpenFailed(session, e.Message)); // queued behind this list's RegisterEsc
+                }
+                break;
+            case CloseMic(var session, var keep):
+                _recorder.Close(session, keep);
+                break;
+            case StartTail(var session):
+                Forget(TailAsync(session), "stop tail");
+                break;
+            case RegisterEsc:
+                if (!Simulating && !_hotkeys.Register(EscId, HotkeyModifiers.None, Keys.Escape, out var error))
+                    Log.Warn($"Esc could not be registered (error {error}) — cancel from the tray instead");
+                break;
+            case UnregisterEsc:
+                _hotkeys.Unregister(EscId);
+                break;
+            case PlaySound(var sound):
+                _sounds.Play(sound);
+                break;
+            case Transcribe(var session, var audio):
+                Forget(TranscribeAsync(session, audio), "transcription");
+                break;
+            case Paste(var text):
+                Forget(PasteAsync(text), "paste");
+                break;
+            case Notify(var message, var kind):
+                ShowNote(message, kind);
+                break;
+            case ExitApp:
+                Forget(ExitAsync(), "exit");
+                break;
+        }
+    }
+
+    /// <summary>Starts a background step whose failure must at least reach the log (an un-awaited Task swallows it).</summary>
+    static async void Forget(Task task, string what)
+    {
+        try { await task; }
+        catch (Exception e) { Log.Error($"{what} failed", e); }
     }
 
     async Task TailAsync(int session)
@@ -254,10 +279,12 @@ sealed class TrayApp : ApplicationContext
             _simulationStopped = true;
             Execute(_machine.HotkeyPressed());
         }
-        else if (_simulationStopped && _machine.State is AppState.Ready or AppState.Error && !_exiting)
+        else if (_simulationStarted && _machine.State is AppState.Ready or AppState.Error && !_simulationQuitting)
         {
-            _exiting = true;
-            _ = QuitSoonAsync();
+            // Done — or the session ended early (mic timeout, open failure): quit either way, never hang.
+            _simulationQuitting = true;
+            if (!_simulationStopped) Environment.ExitCode = 3;
+            Forget(QuitSoonAsync(), "simulated quit");
         }
     }
 
@@ -313,15 +340,23 @@ sealed class TrayApp : ApplicationContext
 
     async Task ExitAsync()
     {
-        _timer.Stop();
-        _hotkeys.Dispose();
-        _recorder.Dispose();
-        _sounds.Dispose();
-        if (_engine is not null) await _engine.DisposeAsync(); // safe: the state machine never exits mid-transcription
-        _tray.Visible = false;
-        _tray.Dispose();
-        Log.Info("MyVoice exited");
-        ExitThread();
+        if (_exitStarted) return; // a second Quit must not dispose Whisper's native state twice
+        _exitStarted = true;
+        try
+        {
+            _timer.Stop();
+            _hotkeys.Dispose();
+            _recorder.Dispose();
+            _sounds.Dispose();
+            if (_engine is not null) await _engine.DisposeAsync(); // safe: the state machine never exits mid-transcription
+        }
+        finally
+        {
+            _tray.Visible = false;
+            _tray.Dispose();
+            Log.Info("MyVoice exited");
+            ExitThread();
+        }
     }
 
     static string Invariant(FormattableString text) => FormattableString.Invariant(text);

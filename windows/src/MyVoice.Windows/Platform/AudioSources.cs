@@ -6,7 +6,8 @@ using NAudio.Wave;
 
 namespace MyVoice.Windows.Platform;
 
-delegate void SamplesHandler(ReadOnlySpan<short> samples);
+/// <param name="engineSilence">The audio engine flagged the packet as silence it generated, not audio from the device.</param>
+delegate void SamplesHandler(ReadOnlySpan<short> samples, bool engineSilence);
 
 /// <summary>A 16 kHz mono 16-bit sample stream. Events fire on a background thread.</summary>
 interface IAudioSource : IDisposable
@@ -50,9 +51,10 @@ sealed class MicSource : IAudioSource
         DeviceName = _recorder.DeviceFriendlyName;
         _recorder.DataAvailable += (buffer, flags, _, _) =>
         {
+            var silent = flags.HasFlag(AudioClientBufferFlags.Silent);
             var samples = MemoryMarshal.Cast<byte, short>(buffer);
-            if (flags.HasFlag(AudioClientBufferFlags.Silent)) samples = new short[samples.Length]; // the engine marks the data as meaningless
-            Samples?.Invoke(samples);
+            if (silent) samples = new short[samples.Length]; // the buffer's content is meaningless when flagged Silent
+            Samples?.Invoke(samples, silent);
         };
         _recorder.RecordingStopped += (_, e) => Stopped?.Invoke(e.Exception);
         _recorder.StartRecording();
@@ -110,7 +112,7 @@ sealed class WavFileSource(short[] speech, double stallSeconds = 0) : IAudioSour
                     spoken += n;
                     if (spoken >= speech.Length) _finishedSpeech = true;
                 }
-                Samples?.Invoke(block);
+                Samples?.Invoke(block, false);
                 delivered += Block;
             }
             Thread.Sleep(5);

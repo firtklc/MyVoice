@@ -29,7 +29,7 @@ public sealed record AppSettings
             var settings = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(path), Json) ?? new AppSettings();
             return Languages.Contains(settings.Language) ? settings : settings with { Language = "auto" };
         }
-        catch (Exception e) when (e is JsonException or IOException)
+        catch (Exception e) when (e is JsonException or IOException or UnauthorizedAccessException)
         {
             problem = $"settings.json could not be read ({e.Message}) — using defaults";
             return new AppSettings();

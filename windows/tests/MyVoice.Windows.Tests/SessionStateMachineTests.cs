@@ -27,10 +27,11 @@ public class SessionStateMachineTests
     }
 
     [Fact]
-    public void HotkeyWhileLoadingIsIgnored()
+    public void HotkeyWhileLoadingSaysSoInsteadOfRecording()
     {
+        // Code review finding: silently ignoring it looked like broken dictation (first launch loads for ~6 s).
         var m = new SessionStateMachine();
-        Assert.Equal(None, m.HotkeyPressed());
+        Assert.Equal([new Notify("Still loading the model — try again in a moment", NoteKind.Warning)], m.HotkeyPressed());
         Assert.Equal(AppState.LoadingModel, m.State);
     }
 

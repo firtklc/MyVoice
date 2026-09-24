@@ -46,8 +46,9 @@ sealed class WhisperEngine : IAsyncDisposable
         return new WhisperEngine(factory, RuntimeOptions.LoadedLibrary?.ToString() ?? "unknown");
     }
 
-    /// <summary>One second of silence: the first transcription after a launch pays the GPU setup cost here, not on the user's first dictation.</summary>
-    public Task WarmUpAsync() => TranscribeAsync(new float[CapturedAudio.SampleRate], "en");
+    /// <summary>One second of silence in the language the app will use: the first transcription after a launch pays
+    /// the GPU setup cost here, not on the user's first dictation.</summary>
+    public Task WarmUpAsync(string language) => TranscribeAsync(new float[CapturedAudio.SampleRate], language);
 
     /// <summary>Text on one line, plus the language Whisper used (detected when <paramref name="language"/> is "auto").</summary>
     public async Task<Transcript> TranscribeAsync(float[] samples, string language, CancellationToken cancel = default)

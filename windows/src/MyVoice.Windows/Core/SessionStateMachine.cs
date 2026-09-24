@@ -113,7 +113,8 @@ public sealed class SessionStateMachine
 
     public IReadOnlyList<Command> HotkeyPressed()
     {
-        if (State is AppState.Error or AppState.LoadingModel) return None;
+        if (State is AppState.LoadingModel) return [new Notify("Still loading the model — try again in a moment", NoteKind.Warning)];
+        if (State is AppState.Error) return None;
         switch (_phase)
         {
             case Phase.Idle:

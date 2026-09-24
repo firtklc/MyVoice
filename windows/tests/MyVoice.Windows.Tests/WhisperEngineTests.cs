@@ -66,5 +66,5 @@ public class WhisperEngineTests(WhisperFixture fixture) : IClassFixture<WhisperF
     }
 
     [Fact]
-    public async Task WarmUpRuns() => await Engine.WarmUpAsync();
+    public async Task WarmUpRuns() => await Engine.WarmUpAsync("auto");
 }

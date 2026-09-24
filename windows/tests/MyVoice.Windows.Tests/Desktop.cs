@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
+using MyVoice.Windows.Platform;
 
 namespace MyVoice.Windows.Tests;
 
@@ -8,10 +9,8 @@ namespace MyVoice.Windows.Tests;
 /// they press keys system-wide, so run them only while nobody is typing.</summary>
 static class Desktop
 {
-    [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern IntPtr FindWindow(string? className, string title);
+    // FindWindow, GetForegroundWindow and GetWindowThreadProcessId come from the app's NativeMethods.
     [DllImport("user32.dll")] static extern bool SetForegroundWindow(IntPtr hWnd);
-    [DllImport("user32.dll")] static extern IntPtr GetForegroundWindow();
-    [DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr hWnd, IntPtr processId);
     [DllImport("user32.dll")] static extern bool AttachThreadInput(uint attach, uint to, bool on);
     [DllImport("kernel32.dll")] static extern uint GetCurrentThreadId();
 
@@ -37,13 +36,13 @@ static class Desktop
     public static void Focus(IntPtr window)
     {
         var me = GetCurrentThreadId();
-        var foreground = GetWindowThreadProcessId(GetForegroundWindow(), IntPtr.Zero);
+        var foreground = NativeMethods.GetWindowThreadProcessId(NativeMethods.GetForegroundWindow(), out _);
         AttachThreadInput(me, foreground, true);
         SetForegroundWindow(window);
         AttachThreadInput(me, foreground, false);
         var clock = Stopwatch.StartNew();
-        while (GetForegroundWindow() != window && clock.ElapsedMilliseconds < 2000) Thread.Sleep(20);
-        Assert.True(GetForegroundWindow() == window, "could not focus the test window — refusing to send keys elsewhere");
+        while (NativeMethods.GetForegroundWindow() != window && clock.ElapsedMilliseconds < 2000) Thread.Sleep(20);
+        Assert.True(NativeMethods.GetForegroundWindow() == window, "could not focus the test window — refusing to send keys elsewhere");
     }
 
     /// <summary>tools/TargetWindow.ps1: a text box that mirrors its text to a file, standing in for "the app you're dictating into".</summary>
@@ -60,7 +59,7 @@ static class Desktop
             _process = Process.Start(new ProcessStartInfo("powershell.exe",
                 $"-NoProfile -ExecutionPolicy Bypass -File \"{script}\" -Out \"{OutFile}\" -Seconds 30 -Title \"{Title}\"") { UseShellExecute = false, CreateNoWindow = true })!;
             var clock = Stopwatch.StartNew();
-            while ((Handle = FindWindow(null, Title)) == IntPtr.Zero && clock.ElapsedMilliseconds < 15000) Thread.Sleep(100);
+            while ((Handle = NativeMethods.FindWindow(null, Title)) == IntPtr.Zero && clock.ElapsedMilliseconds < 15000) Thread.Sleep(100);
             Assert.True(Handle != IntPtr.Zero, "test target window did not appear");
         }
 
