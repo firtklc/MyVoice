@@ -38,3 +38,24 @@ Swift 6 | SwiftUI | whisper.cpp | KeyboardShortcuts | AVFoundation | XcodeGen
 
 - macOS 14+
 - Apple Silicon
+
+## Windows
+
+A native Windows version lives in [`windows/`](windows/): a C# / .NET 10 tray app with the same pipeline,
+the same model and the same `~/.myvoice/dictionary.json` (on Windows: `C:\Users\<you>\.myvoice\`).
+
+```
+Ctrl+Shift+D → wait for the chime → speak → Ctrl+Shift+D → Whisper (GPU, Vulkan) → Dictionary → Paste
+```
+
+- **Requirements:** Windows 11, .NET 10 SDK (`winget install Microsoft.DotNet.SDK.10`), a GPU with a Vulkan
+  driver (any recent NVIDIA/AMD/Intel driver). Without one it falls back to the CPU (several seconds per dictation).
+- **Setup:** put `ggml-large-v3-turbo.bin` in `%USERPROFILE%\.myvoice\models\` and your `dictionary.json` in
+  `%USERPROFILE%\.myvoice\`, then run `powershell -ExecutionPolicy Bypass -File windows\build.ps1` and start
+  MyVoice from the Start menu. It lives in the notification area (pin the icon so it stays visible).
+- **Bluetooth headsets:** AirPods take up to ~10 s to switch into headset mode when the mic opens. MyVoice waits
+  for audio to really flow before the chime, so nothing is lost; speak after the chime. A wired/USB mic starts at once.
+- **Limits:** paste can't reach apps running as Administrator. Esc cancels a recording and is unavailable to other
+  apps while you're recording. Ctrl+Shift+D overrides the same shortcut in other apps (VS Code, Chrome).
+- **Logs:** `%USERPROFILE%\.myvoice\logs\myvoice.log` (tray menu → Open log folder). Timings only; transcripts are
+  logged only with `"debug": true` in `%USERPROFILE%\.myvoice\settings.json`.

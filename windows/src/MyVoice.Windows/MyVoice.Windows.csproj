@@ -29,4 +29,9 @@
     <PackageReference Include="NAudio.Core" Version="3.1.0" />
   </ItemGroup>
 
+  <!-- Whisper.net ships native runtimes for every platform; this app only loads vulkan/win-x64 and win-x64 (CPU). -->
+  <Target Name="RemoveOtherPlatformRuntimes" AfterTargets="Publish">
+    <RemoveDir Directories="$(PublishDir)runtimes\vulkan\linux-x64;$(PublishDir)runtimes\win-x86;$(PublishDir)runtimes\win-arm64" />
+  </Target>
+
 </Project>
