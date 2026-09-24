@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>MyVoice</AssemblyName>
+    <RootNamespace>MyVoice.Windows</RootNamespace>
+    <ApplicationIcon>Assets\MyVoice.ico</ApplicationIcon>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>false</SelfContained>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="MyVoice.Windows.Tests" />
+    <EmbeddedResource Include="Assets\MyVoice.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Vulkan runs on the GPU with only the driver installed; the CPU runtime is the fallback.
+         No CUDA runtime: it needs the CUDA 13 toolkit DLLs (see docs/references/windows-port-spike.md). -->
+    <PackageReference Include="Whisper.net" Version="1.9.1" />
+    <PackageReference Include="Whisper.net.Runtime.Vulkan" Version="1.9.1" />
+    <PackageReference Include="Whisper.net.Runtime" Version="1.9.1" />
+    <PackageReference Include="NAudio.Wasapi" Version="3.1.0" />
+    <PackageReference Include="NAudio.Core" Version="3.1.0" />
+  </ItemGroup>
+
+</Project>

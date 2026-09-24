@@ -9,3 +9,11 @@ build/
 
 # Backlogs (working docs, not code)
 backlog.md
+
+# Windows build (windows/)
+bin/
+obj/
+.vs/
+*.user
+windows/publish/
+windows/TestResults/
