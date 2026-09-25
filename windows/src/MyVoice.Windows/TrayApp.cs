@@ -43,25 +43,32 @@ sealed record Options(string? SimulateWav, string? TargetTitle, double StallSeco
 sealed class TrayApp : ApplicationContext
 {
     const int DictateId = 1, EscId = 2;
-    const string HotkeyName = "Ctrl+Shift+D";
 
     readonly Options _options;
     readonly SessionStateMachine _machine = new();
-    readonly AppSettings _settings;
     readonly DictionaryReplacer _dictionary;
     readonly Recorder _recorder;
     readonly Paster _paster = new();
     readonly Sounds _sounds = new();
     readonly GlobalHotkey _hotkeys = new();
+    readonly DictationHotkey _dictationHotkey;
+    readonly RecordingOverlay _overlay = new(CaretLocator.Locate);
+    readonly TrayIconSet _icons = new(SystemInformation.SmallIconSize);
     readonly NotifyIcon _tray;
     readonly ToolStripMenuItem _statusItem = new() { Enabled = false };
     readonly ToolStripMenuItem _lastItem = new() { Enabled = false, Visible = false };
+    readonly ToolStripMenuItem _hintItem = new() { Enabled = false };
+    readonly ToolStripMenuItem _languageMenu = new("Language");
+    readonly ToolStripMenuItem _settingsItem = new("Settings…");
     readonly System.Windows.Forms.Timer _timer = new() { Interval = 50 };
     readonly Stopwatch _clock = Stopwatch.StartNew();
     readonly CommandQueue _commands;
 
+    AppSettings _settings;
     WhisperEngine? _engine;
     WavFileSource? _simulatedMic;
+    SettingsForm? _settingsForm;
+    TrayIconKind? _shownIcon;
     bool _simulationStarted, _simulationStopped, _simulationQuitting, _exitStarted;
     string? _note;
     double _noteUntil, _recordingSince;
@@ -81,7 +88,7 @@ sealed class TrayApp : ApplicationContext
         _dictionary = DictionaryReplacer.Load(AppPaths.Dictionary, out var dictionaryStatus);
         Log.Info(dictionaryStatus);
 
-        _tray = new NotifyIcon { Icon = LoadIcon(), Visible = true, ContextMenuStrip = BuildMenu() };
+        _tray = new NotifyIcon { Icon = _icons[TrayIconKind.Busy], Visible = true, ContextMenuStrip = BuildMenu() };
 
         _recorder = new Recorder(CreateMic, action => ui.Post(_ => action(), null), () => Now);
         _recorder.Ready += OnMicReady;
@@ -90,11 +97,11 @@ sealed class TrayApp : ApplicationContext
         _recorder.Captured += OnAudioCaptured;
 
         _hotkeys.Pressed += id => Execute(id == EscId ? _machine.EscPressed() : _machine.HotkeyPressed());
-        if (!Simulating && !_hotkeys.Register(DictateId, HotkeyModifiers.Control | HotkeyModifiers.Shift, Keys.D, out var error))
+        _dictationHotkey = new DictationHotkey(_hotkeys, DictateId);
+        if (!Simulating && !_dictationHotkey.Start(_settings.ParseHotkey(), out var error))
         {
-            Log.Warn($"{HotkeyName} could not be registered (error {error})");
-            Execute(_machine.HotkeyUnavailable($"{HotkeyName} is taken by another app — close it and restart MyVoice"));
-            _tray.ShowBalloonTip(8000, "MyVoice", $"{HotkeyName} is already used by another app, so dictation can't start. Close that app and restart MyVoice.", ToolTipIcon.Warning);
+            HotkeyTaken(error);
+            _tray.ShowBalloonTip(8000, "MyVoice", $"{ShortcutName} is already used by another app, so dictation can't start. Pick another shortcut in Settings (MyVoice tray menu).", ToolTipIcon.Warning);
         }
 
         _timer.Tick += (_, _) => OnTick();
@@ -184,6 +191,12 @@ sealed class TrayApp : ApplicationContext
             case Notify(var message, var kind):
                 ShowNote(message, kind);
                 break;
+            case ShowOverlay(var kind):
+                _overlay.Show(kind);
+                break;
+            case HideOverlay:
+                _overlay.Hide();
+                break;
             case ExitApp:
                 Forget(ExitAsync(), "exit");
                 break;
@@ -223,8 +236,9 @@ sealed class TrayApp : ApplicationContext
         try
         {
             var engine = _engine!;
+            var language = _settings.Language; // read here, on the UI thread, where Settings changes it
             var watch = Stopwatch.StartNew();
-            var result = await Task.Run(() => engine.TranscribeAsync(WhisperEngine.ToFloat(audio.Samples), _settings.Language));
+            var result = await Task.Run(() => engine.TranscribeAsync(WhisperEngine.ToFloat(audio.Samples), language));
             var text = _dictionary.Replace(result.Text);
             Log.Info(Invariant($"session {session}: {audio.Seconds:F1} s transcribed in {watch.ElapsedMilliseconds} ms ({engine.Runtime}, language {result.Language}), {text.Length} characters"));
             if (_settings.Debug) Log.Info($"session {session}: \"{result.Text}\" → \"{text}\"");
@@ -262,6 +276,7 @@ sealed class TrayApp : ApplicationContext
     void OnTick()
     {
         _recorder.Poll();
+        _overlay.Tick(_recorder.Level);
         if (Simulating) DriveSimulation();
         if (_note is not null && Now > _noteUntil) _note = null;
         UpdateUi();
@@ -315,7 +330,21 @@ sealed class TrayApp : ApplicationContext
         }
         var tooltip = $"MyVoice — {status}";
         _tray.Text = tooltip.Length > 127 ? tooltip[..127] : tooltip; // NotifyIcon's limit
+
+        var icon = TrayIcons.For(_machine.State);
+        if (icon != _shownIcon) { _tray.Icon = _icons[icon]; _shownIcon = icon; } // only on change: each set is a shell call
+        _hintItem.Text = Escape(_dictationHotkey.Current.MenuHint(KeyLabels.ForCurrentLayout));
+        var canChange = _machine.CanChangeSettings;
+        foreach (ToolStripMenuItem item in _languageMenu.DropDownItems)
+        {
+            item.Checked = (string)item.Tag! == _settings.Language;
+            item.Enabled = canChange;
+        }
+        _settingsItem.Enabled = canChange || _settingsForm is not null;
+        _settingsForm?.ShowState(_dictationHotkey.Current, _settings.Language, canChange);
     }
+
+    string ShortcutName => _dictationHotkey.Current.Display(KeyLabels.ForCurrentLayout);
 
     static string Escape(string menuText) => menuText.Replace("&", "&&"); // '&' would become a keyboard accelerator
 
@@ -324,18 +353,85 @@ sealed class TrayApp : ApplicationContext
         var menu = new ContextMenuStrip();
         menu.Items.Add(_statusItem);
         menu.Items.Add(_lastItem);
-        menu.Items.Add(new ToolStripMenuItem($"{HotkeyName} to dictate") { Enabled = false });
+        menu.Items.Add(_hintItem);
         menu.Items.Add(new ToolStripSeparator());
+        foreach (var preference in LanguagePreference.All)
+            _languageMenu.DropDownItems.Add(new ToolStripMenuItem(preference.DisplayName, null, (_, _) => SetLanguage(preference.Code)) { Tag = preference.Code });
+        menu.Items.Add(_languageMenu);
+        _settingsItem.Click += (_, _) => OpenSettings();
+        menu.Items.Add(_settingsItem);
         menu.Items.Add("Open log folder", null, (_, _) => Process.Start("explorer.exe", Path.GetDirectoryName(AppPaths.Log)!));
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add("Quit", null, (_, _) => Execute(_machine.QuitRequested()));
         return menu;
     }
 
-    static Icon LoadIcon()
+    // ---- settings ----
+
+    void OpenSettings()
     {
+        if (_settingsForm is not null) { _settingsForm.Activate(); return; }
         using var stream = typeof(TrayApp).Assembly.GetManifestResourceStream("MyVoice.Windows.Assets.MyVoice.ico")!;
-        return new Icon(stream, SystemInformation.SmallIconSize);
+        var form = new SettingsForm(new SettingsActions(BeginShortcutCapture, ApplyShortcut, EndShortcutCapture, SetLanguage), new Icon(stream));
+        form.FormClosed += (_, _) => { form.Dispose(); _settingsForm = null; UpdateUi(); };
+        _settingsForm = form;
+        UpdateUi();
+        form.Show();
+        form.Activate();
+    }
+
+    bool BeginShortcutCapture()
+    {
+        if (!_machine.CanChangeSettings) return false;
+        _dictationHotkey.Suspend();
+        return true;
+    }
+
+    string? ApplyShortcut(Hotkey hotkey)
+    {
+        var name = hotkey.Display(KeyLabels.ForCurrentLayout);
+        if (!_dictationHotkey.TryChange(hotkey, out var error))
+        {
+            Log.Warn($"{hotkey} could not be registered (error {error})");
+            return error == NativeMethods.ERROR_HOTKEY_ALREADY_REGISTERED
+                ? $"{name} is already used by another app — try another shortcut."
+                : $"Windows didn't accept {name} (error {error}) — try another shortcut.";
+        }
+        Log.Info($"shortcut changed to {hotkey}");
+        SaveSettings(_settings with { Hotkey = hotkey.ToString() });
+        Execute(_machine.HotkeyAvailable());
+        return null;
+    }
+
+    void EndShortcutCapture()
+    {
+        if (_dictationHotkey.Resume(out var error)) Execute(_machine.HotkeyAvailable());
+        else HotkeyTaken(error);
+    }
+
+    void HotkeyTaken(int error)
+    {
+        Log.Warn($"{_dictationHotkey.Current} could not be registered (error {error})");
+        Execute(_machine.HotkeyUnavailable($"{ShortcutName} is used by another app — pick another shortcut in Settings"));
+    }
+
+    void SetLanguage(string code)
+    {
+        if (!_machine.CanChangeSettings || code == _settings.Language) return;
+        Log.Info($"language changed to {code}");
+        SaveSettings(_settings with { Language = code });
+    }
+
+    void SaveSettings(AppSettings settings)
+    {
+        _settings = settings;
+        try { settings.Save(AppPaths.Settings); }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            Log.Warn($"settings.json could not be saved: {e.Message}");
+            ShowNote("Settings couldn't be saved — the change lasts until MyVoice quits", NoteKind.Warning);
+        }
+        UpdateUi();
     }
 
     async Task ExitAsync()
@@ -345,6 +441,8 @@ sealed class TrayApp : ApplicationContext
         try
         {
             _timer.Stop();
+            _settingsForm?.Close();
+            _overlay.Dispose();
             _hotkeys.Dispose();
             _recorder.Dispose();
             _sounds.Dispose();
@@ -354,6 +452,7 @@ sealed class TrayApp : ApplicationContext
         {
             _tray.Visible = false;
             _tray.Dispose();
+            _icons.Dispose();
             Log.Info("MyVoice exited");
             ExitThread();
         }

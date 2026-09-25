@@ -83,8 +83,15 @@ sealed class RecordingOverlay : NativeWindow, IDisposable
 
     void Render()
     {
+        using var bitmap = Draw();
+        NativeMethods.UpdateLayeredWindow(Handle, bitmap, _position);
+    }
+
+    /// <summary>The pill as it looks now (ARGB, transparent corners).</summary>
+    internal Bitmap Draw()
+    {
         var size = Bounds.Size;
-        using var bitmap = new Bitmap(size.Width, size.Height, PixelFormat.Format32bppArgb);
+        var bitmap = new Bitmap(size.Width, size.Height, PixelFormat.Format32bppArgb);
         using (var g = Graphics.FromImage(bitmap))
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -104,7 +111,7 @@ sealed class RecordingOverlay : NativeWindow, IDisposable
                 g.FillPath(Brushes.White, path);
             }
         }
-        NativeMethods.UpdateLayeredWindow(Handle, bitmap, _position);
+        return bitmap;
     }
 
     static GraphicsPath RoundedRectangle(RectangleF r, float radius)

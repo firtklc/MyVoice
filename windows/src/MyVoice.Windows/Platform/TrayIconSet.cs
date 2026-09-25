@@ -5,8 +5,8 @@ using MyVoice.Windows.Core;
 namespace MyVoice.Windows.Platform;
 
 /// <summary>
-/// The tray icon for each state: the app icon plus a badge — grey connecting, red recording, blue busy (loading,
-/// finishing, transcribing), amber "!" error. Drawn once at startup; swapping NotifyIcon.Icon to a preloaded icon
+/// The tray icon for each state: the app icon plus a badge — grey connecting, red recording, white "…" busy
+/// (loading, finishing, transcribing — the Mac's ellipsis), amber "!" error. Drawn once at startup; swapping NotifyIcon.Icon to a preloaded icon
 /// creates no new handles.
 /// </summary>
 sealed class TrayIconSet : IDisposable
@@ -66,7 +66,7 @@ sealed class TrayIconSet : IDisposable
         {
             TrayIconKind.Connecting => Color.FromArgb(128, 132, 140),
             TrayIconKind.Recording => Color.FromArgb(229, 57, 53),
-            TrayIconKind.Busy => Color.FromArgb(30, 136, 229),
+            TrayIconKind.Busy => Color.White, // on the blue app icon a coloured dot would vanish
             TrayIconKind.Error => Color.FromArgb(249, 168, 37),
             _ => null,
         };
@@ -78,6 +78,14 @@ sealed class TrayIconSet : IDisposable
         g.FillEllipse(Brushes.White, bounds);
         using (var fill = new SolidBrush(badge.Value))
             g.FillEllipse(fill, RectangleF.Inflate(bounds, -ring, -ring));
+        if (kind == TrayIconKind.Busy)
+        {
+            var dot = Math.Max(1.5f, bounds.Width / 5.5f);
+            var y = bounds.Top + (bounds.Height - dot) / 2f;
+            using var dots = new SolidBrush(Color.FromArgb(30, 100, 200));
+            foreach (var offset in new[] { -1.6f, 0f, 1.6f })
+                g.FillEllipse(dots, bounds.Left + bounds.Width / 2f - dot / 2 + offset * dot, y, dot, dot);
+        }
         if (kind == TrayIconKind.Error)
         {
             // "!" drawn as shapes: text is illegible at 16 px.
