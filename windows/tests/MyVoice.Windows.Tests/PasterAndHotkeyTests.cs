@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using MyVoice.Windows.Core;
 using MyVoice.Windows.Platform;
 
 namespace MyVoice.Windows.Tests;

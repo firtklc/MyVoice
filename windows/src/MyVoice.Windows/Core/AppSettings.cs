@@ -5,8 +5,6 @@ namespace MyVoice.Windows.Core;
 /// <summary>~/.myvoice/settings.json (the Mac keeps these in UserDefaults). Unknown or bad values fall back to defaults.</summary>
 public sealed record AppSettings
 {
-    static readonly string[] Languages = ["auto", "en", "tr"];
-
     static readonly JsonSerializerOptions Json = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -16,6 +14,9 @@ public sealed record AppSettings
 
     /// <summary>Whisper language code: "auto", "en" or "tr" (the Mac's LanguagePreference raw values).</summary>
     public string Language { get; init; } = "auto";
+
+    /// <summary>The dictation shortcut as settings text ("Ctrl+Shift+D"). Load guarantees it parses and is allowed.</summary>
+    public string Hotkey { get; init; } = Core.Hotkey.Default.ToString();
 
     /// <summary>When true, the log also records transcript text and last_recording.wav is kept. Off by default.</summary>
     public bool Debug { get; init; }
@@ -27,7 +28,11 @@ public sealed record AppSettings
         try
         {
             var settings = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(path), Json) ?? new AppSettings();
-            return Languages.Contains(settings.Language) ? settings : settings with { Language = "auto" };
+            settings = settings with { Language = LanguagePreference.FromCode(settings.Language).Code };
+            if (Core.Hotkey.TryParse(settings.Hotkey, out var hotkey) && hotkey.Problem is null)
+                return settings with { Hotkey = hotkey.ToString() };
+            problem = $"hotkey '{settings.Hotkey}' in settings.json can't be used — using {Core.Hotkey.Default}";
+            return settings with { Hotkey = Core.Hotkey.Default.ToString() };
         }
         catch (Exception e) when (e is JsonException or IOException or UnauthorizedAccessException)
         {
@@ -35,6 +40,8 @@ public sealed record AppSettings
             return new AppSettings();
         }
     }
+
+    public Core.Hotkey ParseHotkey() => Core.Hotkey.TryParse(Hotkey, out var hotkey) && hotkey.Problem is null ? hotkey : Core.Hotkey.Default;
 
     public void Save(string path)
     {

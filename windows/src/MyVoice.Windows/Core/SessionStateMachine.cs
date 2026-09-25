@@ -6,6 +6,9 @@ public enum Sound { Start, Stop, Cancel }
 
 public enum NoteKind { Info, Warning }
 
+/// <summary>Grey while waiting for the mic to deliver audio, blue with live bars once "speak now" has sounded.</summary>
+public enum OverlayKind { Connecting, Recording }
+
 /// <summary>16 kHz mono samples captured after "speak now" (plus the stop tail).</summary>
 public sealed record CapturedAudio(short[] Samples)
 {
@@ -35,6 +38,9 @@ public sealed record PlaySound(Sound Sound) : Command;
 public sealed record Transcribe(int Session, CapturedAudio Audio) : Command;
 public sealed record Paste(string Text) : Command;
 public sealed record Notify(string Message, NoteKind Kind) : Command;
+/// <summary>Show the overlay near the caret, or switch its look if it is already up (it stays where it is).</summary>
+public sealed record ShowOverlay(OverlayKind Kind) : Command;
+public sealed record HideOverlay : Command;
 public sealed record ExitApp : Command;
 
 /// <summary>
@@ -61,6 +67,10 @@ public sealed class SessionStateMachine
 
     public int Session { get; private set; }
     public string? LastTranscription { get; private set; }
+
+    /// <summary>Hotkey and language may change only between dictations: the Settings shortcut field unregisters the
+    /// live hotkey while it records a new one, which mid-dictation would leave no hotkey to stop with.</summary>
+    public bool CanChangeSettings => _phase == Phase.Idle;
 
     public AppState State =>
         _modelError is not null || _hotkeyError is not null ? AppState.Error
@@ -109,6 +119,13 @@ public sealed class SessionStateMachine
         return None;
     }
 
+    /// <summary>The dictation hotkey is registered again (a new one chosen in Settings, or the old one freed up).</summary>
+    public IReadOnlyList<Command> HotkeyAvailable()
+    {
+        _hotkeyError = null;
+        return None;
+    }
+
     // ---- user input ----
 
     public IReadOnlyList<Command> HotkeyPressed()
@@ -120,7 +137,7 @@ public sealed class SessionStateMachine
             case Phase.Idle:
                 Session++;
                 _phase = Phase.Connecting;
-                return [new OpenMic(Session), new RegisterEsc()];
+                return [new ShowOverlay(OverlayKind.Connecting), new OpenMic(Session), new RegisterEsc()]; // overlay first: opening can take a moment
             case Phase.Connecting:
                 return Cancel(closeMic: true);
             case Phase.Recording:
@@ -142,7 +159,7 @@ public sealed class SessionStateMachine
     {
         _phase = Phase.Idle;
         var cancel = new Command[] { new UnregisterEsc(), new PlaySound(Sound.Cancel), new Notify("Cancelled", NoteKind.Info) };
-        return closeMic ? [new CloseMic(Session, false), .. cancel] : cancel;
+        return closeMic ? [new CloseMic(Session, false), new HideOverlay(), .. cancel] : cancel; // waiting for audio: already hidden
     }
 
     // ---- microphone ----
@@ -151,21 +168,21 @@ public sealed class SessionStateMachine
     {
         if (!Current(session, Phase.Connecting)) return None;
         _phase = Phase.Idle;
-        return [new UnregisterEsc(), new Notify(message, NoteKind.Warning)];
+        return [new HideOverlay(), new UnregisterEsc(), new Notify(message, NoteKind.Warning)];
     }
 
     public IReadOnlyList<Command> MicReady(int session)
     {
         if (!Current(session, Phase.Connecting)) return None;
         _phase = Phase.Recording;
-        return [new PlaySound(Sound.Start)];
+        return [new PlaySound(Sound.Start), new ShowOverlay(OverlayKind.Recording)];
     }
 
     public IReadOnlyList<Command> MicTimedOut(int session)
     {
         if (!Current(session, Phase.Connecting)) return None;
         _phase = Phase.Idle;
-        return [new CloseMic(session, false), new UnregisterEsc(), new Notify("Mic not delivering audio — nothing recorded", NoteKind.Warning)];
+        return [new CloseMic(session, false), new HideOverlay(), new UnregisterEsc(), new Notify("Mic not delivering audio — nothing recorded", NoteKind.Warning)];
     }
 
     public IReadOnlyList<Command> MicLost(int session)
@@ -173,7 +190,7 @@ public sealed class SessionStateMachine
         if (Current(session, Phase.Connecting))
         {
             _phase = Phase.Idle;
-            return [new CloseMic(session, false), new UnregisterEsc(), new Notify("Microphone disconnected — nothing recorded", NoteKind.Warning)];
+            return [new CloseMic(session, false), new HideOverlay(), new UnregisterEsc(), new Notify("Microphone disconnected — nothing recorded", NoteKind.Warning)];
         }
         if (Current(session, Phase.Recording) || Current(session, Phase.Tail))
             return CloseKeepingAudio(session); // transcribe what was captured
@@ -186,7 +203,7 @@ public sealed class SessionStateMachine
     IReadOnlyList<Command> CloseKeepingAudio(int session)
     {
         _phase = Phase.AwaitingAudio;
-        return [new CloseMic(session, true), new PlaySound(Sound.Stop)]; // chime after the tail so it isn't recorded
+        return [new CloseMic(session, true), new HideOverlay(), new PlaySound(Sound.Stop)]; // chime after the tail so it isn't recorded
     }
 
     public IReadOnlyList<Command> AudioCaptured(int session, CapturedAudio audio)
@@ -244,7 +261,7 @@ public sealed class SessionStateMachine
         _phase = Phase.Idle;
         return phase switch
         {
-            Phase.Connecting or Phase.Recording or Phase.Tail => [new CloseMic(Session, false), new UnregisterEsc(), new ExitApp()],
+            Phase.Connecting or Phase.Recording or Phase.Tail => [new CloseMic(Session, false), new HideOverlay(), new UnregisterEsc(), new ExitApp()],
             Phase.AwaitingAudio => [new UnregisterEsc(), new ExitApp()],
             _ => [new ExitApp()],
         };
