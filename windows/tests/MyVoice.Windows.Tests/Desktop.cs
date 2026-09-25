@@ -21,6 +21,15 @@ static class Desktop
     [DllImport("user32.dll")] static extern int ReleaseDC(IntPtr hWnd, IntPtr dc);
     [DllImport("gdi32.dll")] static extern bool BitBlt(IntPtr dest, int x, int y, int w, int h, IntPtr source, int sx, int sy, int rop);
 
+    static string Describe(IntPtr window)
+    {
+        if (window == IntPtr.Zero) return "none";
+        NativeMethods.GetWindowThreadProcessId(window, out var pid);
+        string name;
+        try { name = Process.GetProcessById((int)pid).ProcessName; } catch (ArgumentException) { name = "?"; }
+        return $"{name} ({NativeMethods.ClassName(window)})";
+    }
+
     public static Rectangle WindowRect(IntPtr window)
     {
         GetWindowRect(window, out var r);
@@ -62,13 +71,16 @@ static class Desktop
     public static void Focus(IntPtr window)
     {
         var me = GetCurrentThreadId();
-        var foreground = NativeMethods.GetWindowThreadProcessId(NativeMethods.GetForegroundWindow(), out _);
-        AttachThreadInput(me, foreground, true);
-        SetForegroundWindow(window);
+        var before = NativeMethods.GetForegroundWindow();
+        var foreground = NativeMethods.GetWindowThreadProcessId(before, out _);
+        var attached = AttachThreadInput(me, foreground, true);
+        var set = SetForegroundWindow(window);
         AttachThreadInput(me, foreground, false);
         var clock = Stopwatch.StartNew();
         while (NativeMethods.GetForegroundWindow() != window && clock.ElapsedMilliseconds < 2000) Thread.Sleep(20);
-        Assert.True(NativeMethods.GetForegroundWindow() == window, "could not focus the test window — refusing to send keys elsewhere");
+        var after = NativeMethods.GetForegroundWindow();
+        Assert.True(after == window, "could not focus the test window — refusing to send keys elsewhere " +
+            $"(foreground before: {Describe(before)}, attached {attached}, SetForegroundWindow {set}, foreground after: {Describe(after)})");
     }
 
     /// <summary>tools/TargetWindow.ps1: a text box that mirrors its text to a file, standing in for "the app you're dictating into".</summary>

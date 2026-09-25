@@ -65,6 +65,10 @@ last read it, and empty callbacks are dropped. A WAV test source that always sen
 - **The test process must be per-monitor DPI aware, like the app.** Without it Windows scales the test's coordinates
   on a 150 % display: window-position tests still passed, but a screen capture of the overlay caught the desktop
   behind it instead.
+- **Known quirk (open):** in a full `Resource=SendsKeys` run, `PasterTests.PastesIntoTheFocusedWindow` and
+  `WaitsUntilHeldModifiersAreReleased` can find Windows refusing `SetForegroundWindow` (Edge or Claude in front);
+  the focus guard then fails them without sending keys. Run alone (`--filter-class "*PasterTests"`) they pass. The
+  app is unaffected — it never activates windows.
 
 ## Smart App Control
 
