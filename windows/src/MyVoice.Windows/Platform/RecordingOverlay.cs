@@ -40,6 +40,8 @@ sealed class RecordingOverlay : NativeWindow, IDisposable
 
     public bool Visible { get; private set; }
 
+    internal float ShownLevel => _level; // DEBUG
+
     /// <summary>The monitor's DPI / 96 where the overlay was last placed.</summary>
     public double Scale { get; private set; } = 1;
 

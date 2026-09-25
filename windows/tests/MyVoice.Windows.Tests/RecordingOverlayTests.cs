@@ -17,6 +17,9 @@ public class RecordingOverlayTests
     [DllImport("user32.dll")] static extern IntPtr WindowFromPoint(Point point);
     [DllImport("user32.dll")] static extern bool GetWindowRect(IntPtr hWnd, out Rect rect);
     [StructLayout(LayoutKind.Sequential)] struct Rect { public int Left, Top, Right, Bottom; }
+    [DllImport("user32.dll")] static extern IntPtr GetDC(IntPtr hWnd);
+    [DllImport("user32.dll")] static extern int ReleaseDC(IntPtr hWnd, IntPtr dc);
+    [DllImport("gdi32.dll")] static extern bool BitBlt(IntPtr dest, int x, int y, int w, int h, IntPtr source, int sx, int sy, int rop);
 
     const int GWL_EXSTYLE = -20;
 
@@ -81,6 +84,40 @@ public class RecordingOverlayTests
             Assert.Equal(shown, recording);
             Assert.Equal(1, calls);
             return Task.CompletedTask;
+        });
+    }
+
+    /// <summary>Height in pixels of the white middle bar as it is on screen now (not as drawn in memory).</summary>
+    static int MiddleBarOnScreen(RecordingOverlay overlay)
+    {
+        var b = overlay.Bounds;
+        using var shot = new Bitmap(b.Width, b.Height);
+        using (var g = Graphics.FromImage(shot))
+        {
+            var screen = GetDC(IntPtr.Zero);
+            var target = g.GetHdc();
+            BitBlt(target, 0, 0, b.Width, b.Height, screen, b.Left, b.Top, 0x00CC0020 | 0x40000000); // SRCCOPY | CAPTUREBLT (layered windows)
+            g.ReleaseHdc(target);
+            ReleaseDC(IntPtr.Zero, screen);
+        }
+        var x = b.Width / 2;
+        return Enumerable.Range(0, b.Height).Count(y => shot.GetPixel(x, y) is { R: > 200, G: > 200, B: > 200 });
+    }
+
+    [Fact]
+    public void BarsFollowTheLevelOnScreen()
+    {
+        // UAT B: the blue pill's bars stayed at their minimum while Fırat spoke.
+        Desktop.RunSta(async () =>
+        {
+            using var overlay = new RecordingOverlay(CaretOnPrimary);
+            overlay.Show(OverlayKind.Recording);
+            for (var i = 0; i < 5; i++) { overlay.Tick(0); await Task.Delay(50); }
+            var quiet = MiddleBarOnScreen(overlay);
+            for (var i = 0; i < 5; i++) { overlay.Tick(0.3f); await Task.Delay(50); } // speech: about −10 dBFS
+            var loud = MiddleBarOnScreen(overlay);
+            overlay.Hide();
+            Assert.True(loud > quiet * 2, $"middle bar {quiet} px when quiet, {loud} px when loud");
         });
     }
 

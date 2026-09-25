@@ -22,6 +22,7 @@ sealed class Recorder(Func<IAudioSource> createSource, Action<Action> post, Func
         public readonly MicReadiness Readiness = new(openedAt);
         public readonly CaptureBuffer Buffer = new();
         public volatile float Level;
+        public int DiagBlocks, DiagSilent, DiagQuiet, DiagMaxPeak, DiagSamples; // DEBUG
         public bool Signalled, Stopped, CloseRequested, Keep, Finished;
         public double CloseRequestedAt;
     }
@@ -52,6 +53,10 @@ sealed class Recorder(Func<IAudioSource> createSource, Action<Action> post, Func
             var peak = 0;
             foreach (var s in samples) peak = Math.Max(peak, Math.Abs((int)s));
             take.Level = peak / 32768f;
+            take.DiagBlocks++; take.DiagSamples += samples.Length; // DEBUG
+            if (engineSilence) take.DiagSilent++;
+            if (peak < 104) take.DiagQuiet++;
+            take.DiagMaxPeak = Math.Max(take.DiagMaxPeak, peak);
         };
         source.Stopped += error => post(() => OnStopped(take, error));
         try
@@ -128,6 +133,7 @@ sealed class Recorder(Func<IAudioSource> createSource, Action<Action> post, Func
             CapturedSeconds: audio.Seconds,
             WallSeconds: readyAt is null ? 0 : take.CloseRequestedAt - readyAt.Value,
             PeakDbfs: audio.PeakDbfs);
+        Log.Info($"session {take.Session}: DEBUG blocks {take.DiagBlocks} (avg {take.DiagSamples / Math.Max(1, take.DiagBlocks)} samples), silent-flagged {take.DiagSilent}, below -50 dBFS {take.DiagQuiet}, max block peak {take.DiagMaxPeak}");
         Captured?.Invoke(take.Session, audio, stats);
     }
 
