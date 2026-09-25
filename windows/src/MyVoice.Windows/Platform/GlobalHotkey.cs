@@ -1,9 +1,7 @@
 using System.Runtime.InteropServices;
+using MyVoice.Windows.Core;
 
 namespace MyVoice.Windows.Platform;
-
-[Flags]
-enum HotkeyModifiers : uint { None = 0, Alt = 1, Control = 2, Shift = 4, Win = 8 }
 
 /// <summary>
 /// System-wide hotkeys via RegisterHotKey on a message-only window (the Mac uses Carbon RegisterEventHotKey).

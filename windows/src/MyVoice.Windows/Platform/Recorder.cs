@@ -21,7 +21,7 @@ sealed class Recorder(Func<IAudioSource> createSource, Action<Action> post, Func
         public readonly double OpenedAt = openedAt;
         public readonly MicReadiness Readiness = new(openedAt);
         public readonly CaptureBuffer Buffer = new();
-        public volatile float Level;
+        public int PeakSinceRead; // written on the audio thread, taken on the UI thread (Interlocked)
         public bool Signalled, Stopped, CloseRequested, Keep, Finished;
         public double CloseRequestedAt;
     }
@@ -34,8 +34,9 @@ sealed class Recorder(Func<IAudioSource> createSource, Action<Action> post, Func
     public event Action<int>? Lost;
     public event Action<int, CapturedAudio, RecordingStats>? Captured;
 
-    /// <summary>Peak of the latest block, 0..1 (for the level meter).</summary>
-    public float Level => _active?.Level ?? 0;
+    /// <summary>For the level meter: the loudest sample since the last call, 0…1. Not just the latest block's:
+    /// AirPods deliver a 20 ms block followed by near-empty ones, so the latest block is usually silent.</summary>
+    public float TakeLevel() => _active is { } take ? Interlocked.Exchange(ref take.PeakSinceRead, 0) / 32768f : 0;
 
     public string? DeviceName => _active?.Source.DeviceName;
 
@@ -51,7 +52,8 @@ sealed class Recorder(Func<IAudioSource> createSource, Action<Action> post, Func
             take.Buffer.Append(at, samples);
             var peak = 0;
             foreach (var s in samples) peak = Math.Max(peak, Math.Abs((int)s));
-            take.Level = peak / 32768f;
+            for (var seen = take.PeakSinceRead; peak > seen; seen = take.PeakSinceRead) // lock-free max
+                if (Interlocked.CompareExchange(ref take.PeakSinceRead, peak, seen) == seen) break;
         };
         source.Stopped += error => post(() => OnStopped(take, error));
         try

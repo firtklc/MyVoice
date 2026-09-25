@@ -13,6 +13,41 @@ static class Desktop
     [DllImport("user32.dll")] static extern bool SetForegroundWindow(IntPtr hWnd);
     [DllImport("user32.dll")] static extern bool AttachThreadInput(uint attach, uint to, bool on);
     [DllImport("kernel32.dll")] static extern uint GetCurrentThreadId();
+    [DllImport("user32.dll")] public static extern int GetWindowLong(IntPtr hWnd, int index);
+    [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr hWnd);
+    [DllImport("user32.dll")] public static extern IntPtr WindowFromPoint(Point point);
+    [DllImport("user32.dll")] static extern bool GetWindowRect(IntPtr hWnd, out NativeMethods.RECT rect);
+    [DllImport("user32.dll")] static extern IntPtr GetDC(IntPtr hWnd);
+    [DllImport("user32.dll")] static extern int ReleaseDC(IntPtr hWnd, IntPtr dc);
+    [DllImport("gdi32.dll")] static extern bool BitBlt(IntPtr dest, int x, int y, int w, int h, IntPtr source, int sx, int sy, int rop);
+
+    static string Describe(IntPtr window)
+    {
+        if (window == IntPtr.Zero) return "none";
+        NativeMethods.GetWindowThreadProcessId(window, out var pid);
+        string name;
+        try { name = Process.GetProcessById((int)pid).ProcessName; } catch (ArgumentException) { name = "?"; }
+        return $"{name} ({NativeMethods.ClassName(window)})";
+    }
+
+    public static Rectangle WindowRect(IntPtr window)
+    {
+        GetWindowRect(window, out var r);
+        return Rectangle.FromLTRB(r.Left, r.Top, r.Right, r.Bottom);
+    }
+
+    /// <summary>What is on screen in <paramref name="area"/> now, layered windows included (CAPTUREBLT).</summary>
+    public static Bitmap Capture(Rectangle area)
+    {
+        var shot = new Bitmap(area.Width, area.Height);
+        using var g = Graphics.FromImage(shot);
+        var screen = GetDC(IntPtr.Zero);
+        var target = g.GetHdc();
+        BitBlt(target, 0, 0, area.Width, area.Height, screen, area.Left, area.Top, 0x00CC0020 | 0x40000000); // SRCCOPY | CAPTUREBLT
+        g.ReleaseHdc(target);
+        ReleaseDC(IntPtr.Zero, screen);
+        return shot;
+    }
 
     /// <summary>Runs <paramref name="body"/> on an STA thread with a WinForms message loop, like MyVoice's UI thread.</summary>
     public static void RunSta(Func<Task> body, int timeoutMs = 20000)
@@ -36,13 +71,16 @@ static class Desktop
     public static void Focus(IntPtr window)
     {
         var me = GetCurrentThreadId();
-        var foreground = NativeMethods.GetWindowThreadProcessId(NativeMethods.GetForegroundWindow(), out _);
-        AttachThreadInput(me, foreground, true);
-        SetForegroundWindow(window);
+        var before = NativeMethods.GetForegroundWindow();
+        var foreground = NativeMethods.GetWindowThreadProcessId(before, out _);
+        var attached = AttachThreadInput(me, foreground, true);
+        var set = SetForegroundWindow(window);
         AttachThreadInput(me, foreground, false);
         var clock = Stopwatch.StartNew();
         while (NativeMethods.GetForegroundWindow() != window && clock.ElapsedMilliseconds < 2000) Thread.Sleep(20);
-        Assert.True(NativeMethods.GetForegroundWindow() == window, "could not focus the test window — refusing to send keys elsewhere");
+        var after = NativeMethods.GetForegroundWindow();
+        Assert.True(after == window, "could not focus the test window — refusing to send keys elsewhere " +
+            $"(foreground before: {Describe(before)}, attached {attached}, SetForegroundWindow {set}, foreground after: {Describe(after)})");
     }
 
     /// <summary>tools/TargetWindow.ps1: a text box that mirrors its text to a file, standing in for "the app you're dictating into".</summary>

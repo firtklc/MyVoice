@@ -22,7 +22,7 @@ $shortcut = Join-Path ([Environment]::GetFolderPath('Programs')) 'MyVoice.lnk'
 $link = (New-Object -ComObject WScript.Shell).CreateShortcut($shortcut)
 $link.TargetPath = Join-Path $install 'MyVoice.exe'
 $link.WorkingDirectory = $install
-$link.Description = 'MyVoice dictation (Ctrl+Shift+D)'
+$link.Description = 'MyVoice dictation'
 $link.Save()
 
 $mb = [math]::Round(((Get-ChildItem $install -Recurse | Measure-Object Length -Sum).Sum / 1MB), 1)

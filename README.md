@@ -48,6 +48,15 @@ the same model and the same `~/.myvoice/dictionary.json` (on Windows: `C:\Users\
 Ctrl+Shift+D → wait for the chime → speak → Ctrl+Shift+D → Whisper (GPU, Vulkan) → Dictionary → Paste
 ```
 
+- **While dictating:** a small pill appears next to the text cursor (next to the mouse pointer in apps that draw
+  their own cursor, such as Chrome and VS Code): grey while the mic connects, blue with live bars once you can
+  speak. It never takes focus, so the text lands where you were typing. The tray icon shows the state too:
+  grey dot connecting, red recording, "…" working, amber "!" when something needs attention.
+- **Settings** (tray menu): change the shortcut — click the box and press the new keys. It must include Ctrl or
+  Win; Ctrl+Alt is refused because it is AltGr on Turkish and other keyboards. **Language** (tray menu or
+  Settings): Auto-detect, English or Türkçe. Both are kept in `%USERPROFILE%\.myvoice\settings.json` and can
+  change only between dictations.
+
 - **Requirements:** Windows 11, .NET 10 SDK (`winget install Microsoft.DotNet.SDK.10`), a GPU with a Vulkan
   driver (any recent NVIDIA/AMD/Intel driver). Without one it falls back to the CPU (several seconds per dictation).
 - **Setup:** put `ggml-large-v3-turbo.bin` in `%USERPROFILE%\.myvoice\models\` and your `dictionary.json` in
@@ -56,6 +65,7 @@ Ctrl+Shift+D → wait for the chime → speak → Ctrl+Shift+D → Whisper (GPU,
 - **Bluetooth headsets:** AirPods take up to ~10 s to switch into headset mode when the mic opens. MyVoice waits
   for audio to really flow before the chime, so nothing is lost; speak after the chime. A wired/USB mic starts at once.
 - **Limits:** paste can't reach apps running as Administrator. Esc cancels a recording and is unavailable to other
-  apps while you're recording. Ctrl+Shift+D overrides the same shortcut in other apps (VS Code, Chrome).
+  apps while you're recording. The dictation shortcut overrides the same shortcut in other apps (Ctrl+Shift+D:
+  VS Code's Run and Debug, Chrome's bookmark-all-tabs) — pick another in Settings if you need those.
 - **Logs:** `%USERPROFILE%\.myvoice\logs\myvoice.log` (tray menu → Open log folder). Timings only; transcripts are
   logged only with `"debug": true` in `%USERPROFILE%\.myvoice\settings.json`.

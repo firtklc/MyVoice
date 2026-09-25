@@ -7,7 +7,9 @@ namespace MyVoice.Windows.Tests;
 /// The whole app: MyVoice.exe --simulate plays a WAV through the real recorder (after a simulated cold-headset
 /// stall), transcribes it on the GPU, applies ~/.myvoice/dictionary.json and pastes into the focused window.
 /// </summary>
-[Trait("Kind", "Integration"), Trait("Resource", "SendsKeys"), Trait("Resource", "GPU")]
+// Needs the GPU too, but is tagged only SendsKeys: every test that moves focus or presses keys must be reachable
+// through that one tag alone, so a "Resource=GPU" run never selects it (it did once, while Fırat was at the PC).
+[Trait("Kind", "Integration"), Trait("Resource", "SendsKeys")]
 [Collection("Desktop")]
 public class EndToEndTests
 {

@@ -7,7 +7,7 @@ public class SessionStateMachineTests
     static CapturedAudio Speech(double seconds) => new(Enumerable.Repeat((short)1000, (int)(seconds * 16000)).ToArray());
     static CapturedAudio Zeros(double seconds) => new(new short[(int)(seconds * 16000)]);
     static readonly Command[] None = [];
-    static Command[] Cancelled(int s) => [new CloseMic(s, false), new UnregisterEsc(), new PlaySound(Sound.Cancel), new Notify("Cancelled", NoteKind.Info)];
+    static Command[] Cancelled(int s) => [new CloseMic(s, false), new HideOverlay(), new UnregisterEsc(), new PlaySound(Sound.Cancel), new Notify("Cancelled", NoteKind.Info)];
 
     static SessionStateMachine Ready() { var m = new SessionStateMachine(); m.ModelLoaded(); return m; }
     static SessionStateMachine Connecting() { var m = Ready(); m.HotkeyPressed(); return m; }
@@ -78,7 +78,7 @@ public class SessionStateMachineTests
     public void HotkeyOpensTheMicAndListensForEsc()
     {
         var m = Ready();
-        Assert.Equal([new OpenMic(1), new RegisterEsc()], m.HotkeyPressed());
+        Assert.Equal([new ShowOverlay(OverlayKind.Connecting), new OpenMic(1), new RegisterEsc()], m.HotkeyPressed());
         Assert.Equal(AppState.Connecting, m.State);
         Assert.Equal("Connecting to microphone…", m.StatusText);
         Assert.Equal(1, m.Session);
@@ -88,7 +88,7 @@ public class SessionStateMachineTests
     public void MicReadyStartsRecordingWithTheChime()
     {
         var m = Connecting();
-        Assert.Equal([new PlaySound(Sound.Start)], m.MicReady(1));
+        Assert.Equal([new PlaySound(Sound.Start), new ShowOverlay(OverlayKind.Recording)], m.MicReady(1));
         Assert.Equal(AppState.Recording, m.State);
         Assert.Equal("Recording…", m.StatusText);
     }
@@ -107,7 +107,7 @@ public class SessionStateMachineTests
     {
         // The stop chime plays after the tail so it is not recorded.
         var m = InTail();
-        Assert.Equal([new CloseMic(1, true), new PlaySound(Sound.Stop)], m.TailElapsed(1));
+        Assert.Equal([new CloseMic(1, true), new HideOverlay(), new PlaySound(Sound.Stop)], m.TailElapsed(1));
         Assert.Equal(AppState.Stopping, m.State);
     }
 
@@ -144,7 +144,7 @@ public class SessionStateMachineTests
     {
         var m = Transcribing();
         m.TranscriptionDone(1, "one");
-        Assert.Equal([new OpenMic(2), new RegisterEsc()], m.HotkeyPressed());
+        Assert.Equal([new ShowOverlay(OverlayKind.Connecting), new OpenMic(2), new RegisterEsc()], m.HotkeyPressed());
         Assert.Equal(2, m.Session);
     }
 
@@ -203,7 +203,7 @@ public class SessionStateMachineTests
     {
         var m = Recording();
         m.EscPressed();
-        Assert.Equal([new OpenMic(2), new RegisterEsc()], m.HotkeyPressed());
+        Assert.Equal([new ShowOverlay(OverlayKind.Connecting), new OpenMic(2), new RegisterEsc()], m.HotkeyPressed());
     }
 
     // ---- stale completions ----
@@ -257,7 +257,7 @@ public class SessionStateMachineTests
     public void MicTimeoutGivesUpWithAWarning()
     {
         var m = Connecting();
-        Assert.Equal([new CloseMic(1, false), new UnregisterEsc(), new Notify("Mic not delivering audio — nothing recorded", NoteKind.Warning)], m.MicTimedOut(1));
+        Assert.Equal([new CloseMic(1, false), new HideOverlay(), new UnregisterEsc(), new Notify("Mic not delivering audio — nothing recorded", NoteKind.Warning)], m.MicTimedOut(1));
         Assert.Equal(AppState.Ready, m.State);
     }
 
@@ -265,7 +265,7 @@ public class SessionStateMachineTests
     public void MicThatCannotOpenIsReported()
     {
         var m = Connecting();
-        Assert.Equal([new UnregisterEsc(), new Notify("No microphone found", NoteKind.Warning)], m.MicOpenFailed(1, "No microphone found"));
+        Assert.Equal([new HideOverlay(), new UnregisterEsc(), new Notify("No microphone found", NoteKind.Warning)], m.MicOpenFailed(1, "No microphone found"));
         Assert.Equal(AppState.Ready, m.State);
     }
 
@@ -273,7 +273,7 @@ public class SessionStateMachineTests
     public void MicLostWhileConnectingRecordsNothing()
     {
         var m = Connecting();
-        Assert.Equal([new CloseMic(1, false), new UnregisterEsc(), new Notify("Microphone disconnected — nothing recorded", NoteKind.Warning)], m.MicLost(1));
+        Assert.Equal([new CloseMic(1, false), new HideOverlay(), new UnregisterEsc(), new Notify("Microphone disconnected — nothing recorded", NoteKind.Warning)], m.MicLost(1));
         Assert.Equal(AppState.Ready, m.State);
     }
 
@@ -281,7 +281,7 @@ public class SessionStateMachineTests
     public void MicLostWhileRecordingTranscribesWhatWasCaptured()
     {
         var m = Recording();
-        Assert.Equal([new CloseMic(1, true), new PlaySound(Sound.Stop)], m.MicLost(1));
+        Assert.Equal([new CloseMic(1, true), new HideOverlay(), new PlaySound(Sound.Stop)], m.MicLost(1));
         Assert.Equal(AppState.Stopping, m.State);
         var audio = Speech(2);
         Assert.Equal([new UnregisterEsc(), new Transcribe(1, audio)], m.AudioCaptured(1, audio));
@@ -291,7 +291,7 @@ public class SessionStateMachineTests
     public void MicLostDuringTheTailEndsTheTailEarly()
     {
         var m = InTail();
-        Assert.Equal([new CloseMic(1, true), new PlaySound(Sound.Stop)], m.MicLost(1));
+        Assert.Equal([new CloseMic(1, true), new HideOverlay(), new PlaySound(Sound.Stop)], m.MicLost(1));
         Assert.Equal(None, m.TailElapsed(1));
     }
 
@@ -360,11 +360,11 @@ public class SessionStateMachineTests
 
     [Fact]
     public void QuitWhileRecordingDiscardsAndExits() =>
-        Assert.Equal([new CloseMic(1, false), new UnregisterEsc(), new ExitApp()], Recording().QuitRequested());
+        Assert.Equal([new CloseMic(1, false), new HideOverlay(), new UnregisterEsc(), new ExitApp()], Recording().QuitRequested());
 
     [Fact]
     public void QuitDuringTheTailDiscardsAndExits() =>
-        Assert.Equal([new CloseMic(1, false), new UnregisterEsc(), new ExitApp()], InTail().QuitRequested());
+        Assert.Equal([new CloseMic(1, false), new HideOverlay(), new UnregisterEsc(), new ExitApp()], InTail().QuitRequested());
 
     [Fact]
     public void QuitWhileTranscribingWaitsForWhisperAndDoesNotPaste()
@@ -399,4 +399,131 @@ public class SessionStateMachineTests
         m.QuitRequested();
         Assert.Equal([new ExitApp()], m.ModelFailed("x"));
     }
+
+    // ---- overlay, Esc and settings across every path ----
+
+    [Fact]
+    public void TheOverlayAndEscFollowTheSessionThroughRandomEventSequences()
+    {
+        // Every path must hide the overlay it showed and unregister the Esc it registered: a stuck overlay
+        // floats over every app, and a stuck Esc hotkey swallows Esc system-wide. Seeded, so failures reproduce.
+        var random = new Random(20260925);
+        for (var run = 0; run < 3000; run++)
+        {
+            var m = new SessionStateMachine();
+            OverlayKind? overlay = null;
+            var esc = false;
+            var trace = new List<string>();
+            void Apply(string name, IReadOnlyList<Command> commands)
+            {
+                trace.Add(name);
+                foreach (var c in commands)
+                {
+                    switch (c)
+                    {
+                        case ShowOverlay(var kind): overlay = kind; break;
+                        case HideOverlay: overlay = null; break;
+                        case RegisterEsc: Assert.False(esc, $"Esc registered twice: {string.Join(", ", trace)}"); esc = true; break;
+                        case UnregisterEsc: esc = false; break;
+                    }
+                }
+            }
+            if (random.Next(4) > 0) Apply("ModelLoaded", m.ModelLoaded());
+            for (var step = 0; step < 25; step++)
+            {
+                var s = m.Session - random.Next(2); // mostly current, sometimes a stale session
+                var (name, commands) = random.Next(12) switch
+                {
+                    0 or 1 => ("Hotkey", m.HotkeyPressed()),
+                    2 => ("Esc", m.EscPressed()),
+                    3 => ($"MicReady({s})", m.MicReady(s)),
+                    4 => ($"MicOpenFailed({s})", m.MicOpenFailed(s, "x")),
+                    5 => ($"MicTimedOut({s})", m.MicTimedOut(s)),
+                    6 => ($"MicLost({s})", m.MicLost(s)),
+                    7 => ($"TailElapsed({s})", m.TailElapsed(s)),
+                    8 => ($"AudioCaptured({s})", m.AudioCaptured(s, random.Next(3) switch { 0 => Speech(2), 1 => Zeros(2), _ => Speech(0.05) })),
+                    9 => ($"TranscriptionDone({s})", m.TranscriptionDone(s, random.Next(2) == 0 ? "text" : "")),
+                    10 => ($"TranscriptionFailed({s})", m.TranscriptionFailed(s, "x")),
+                    _ => ("ModelLoaded", m.ModelLoaded()),
+                };
+                Apply(name, commands);
+                var where = string.Join(", ", trace);
+                if (commands.Contains(new ExitApp())) break;
+                switch (m.State)
+                {
+                    case AppState.Connecting:
+                        Assert.True(overlay == OverlayKind.Connecting, where);
+                        Assert.True(esc, where);
+                        break;
+                    case AppState.Recording:
+                        Assert.True(overlay == OverlayKind.Recording, where);
+                        Assert.True(esc, where);
+                        break;
+                    case AppState.Stopping: // the tail still shows the recording overlay; waiting for the audio doesn't
+                        Assert.True(overlay is null or OverlayKind.Recording, where);
+                        Assert.True(esc, where);
+                        break;
+                    default:
+                        Assert.True(overlay is null, where);
+                        Assert.False(esc, where);
+                        break;
+                }
+            }
+        }
+    }
+
+    [Fact] public void SettingsCanChangeWhileLoading() => Assert.True(new SessionStateMachine().CanChangeSettings);
+
+    [Fact] public void SettingsCanChangeWhenReady() => Assert.True(Ready().CanChangeSettings);
+
+    [Fact]
+    public void SettingsCanChangeInErrorSoATakenHotkeyCanBeReplaced()
+    {
+        var m = Ready();
+        m.HotkeyUnavailable("taken");
+        Assert.True(m.CanChangeSettings);
+    }
+
+    [Fact]
+    public void SettingsCannotChangeDuringADictation()
+    {
+        // The hotkey field unregisters the live hotkey while it records a new one: mid-dictation that would leave
+        // no way to stop with the hotkey. Language follows the same rule (the plan: settings change only when idle).
+        Assert.False(Connecting().CanChangeSettings);
+        Assert.False(Recording().CanChangeSettings);
+        Assert.False(InTail().CanChangeSettings);
+        Assert.False(AwaitingAudio().CanChangeSettings);
+        Assert.False(Transcribing().CanChangeSettings);
+    }
+
+    [Fact]
+    public void AHotkeyThatBecomesAvailableClearsTheError()
+    {
+        var m = Ready();
+        m.HotkeyUnavailable("taken");
+        Assert.Equal(None, m.HotkeyAvailable());
+        Assert.Equal(AppState.Ready, m.State);
+        Assert.Equal([new ShowOverlay(OverlayKind.Connecting), new OpenMic(1), new RegisterEsc()], m.HotkeyPressed());
+    }
+
+    [Fact]
+    public void AHotkeyThatBecomesAvailableKeepsAModelError()
+    {
+        var m = new SessionStateMachine();
+        m.ModelFailed("Model not found");
+        m.HotkeyUnavailable("taken");
+        m.HotkeyAvailable();
+        Assert.Equal(AppState.Error, m.State);
+        Assert.Equal("Model not found", m.StatusText);
+    }
+
+    [Theory]
+    [InlineData(AppState.LoadingModel, TrayIconKind.Busy)]
+    [InlineData(AppState.Ready, TrayIconKind.Ready)]
+    [InlineData(AppState.Connecting, TrayIconKind.Connecting)]
+    [InlineData(AppState.Recording, TrayIconKind.Recording)]
+    [InlineData(AppState.Stopping, TrayIconKind.Busy)] // stop was pressed: show that it registered
+    [InlineData(AppState.Transcribing, TrayIconKind.Busy)]
+    [InlineData(AppState.Error, TrayIconKind.Error)]
+    public void EachStateHasATrayIcon(AppState state, TrayIconKind icon) => Assert.Equal(icon, TrayIcons.For(state));
 }
