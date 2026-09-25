@@ -72,8 +72,6 @@ sealed class TrayApp : ApplicationContext
     bool _simulationStarted, _simulationStopped, _simulationQuitting, _exitStarted;
     string? _note;
     double _noteUntil, _recordingSince;
-    float _meterMax, _shownMax;   // DEBUG: highest mic level the overlay was given / showed this recording
-    int _meterTicks, _meterLive;
 
     bool Simulating => _options.SimulateWav is not null;
     double Now => _clock.Elapsed.TotalSeconds;
@@ -221,8 +219,6 @@ sealed class TrayApp : ApplicationContext
     void OnMicReady(int session)
     {
         _recordingSince = Now;
-        _meterMax = _shownMax = 0;
-        _meterTicks = _meterLive = 0;
         Log.Info($"session {session}: speak now");
         Execute(_machine.MicReady(session));
         _simulatedMic?.BeginSpeech(); // the simulated user starts talking after the chime
@@ -231,7 +227,6 @@ sealed class TrayApp : ApplicationContext
     void OnAudioCaptured(int session, CapturedAudio audio, RecordingStats stats)
     {
         Log.Info(Invariant($"session {session}: '{stats.Device}', ready after {stats.ReadyWaitSeconds:F1} s, captured {stats.CapturedSeconds:F1} s of {stats.WallSeconds:F1} s, peak {stats.PeakDbfs:F0} dBFS"));
-        Log.Info(Invariant($"session {session}: DEBUG meter: {_meterTicks} ticks, {_meterLive} above -50 dBFS, max mic level {_meterMax:F3}, max shown {_shownMax:F3}"));
         if (_settings.Debug) WavFile.Write(AppPaths.LastRecording, audio.Samples);
         Execute(_machine.AudioCaptured(session, audio));
     }
@@ -281,15 +276,7 @@ sealed class TrayApp : ApplicationContext
     void OnTick()
     {
         _recorder.Poll();
-        var level = _recorder.TakeLevel();
-        _overlay.Tick(level);
-        if (_machine.State == AppState.Recording)
-        {
-            _meterTicks++;
-            if (level > 0.0032f) _meterLive++;
-            _meterMax = Math.Max(_meterMax, level);
-            _shownMax = Math.Max(_shownMax, _overlay.ShownLevel);
-        }
+        _overlay.Tick(_recorder.TakeLevel());
         if (Simulating) DriveSimulation();
         if (_note is not null && Now > _noteUntil) _note = null;
         UpdateUi();

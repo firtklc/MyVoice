@@ -47,6 +47,12 @@ below came from a measurement, and the three bugs were each reproduced by a fail
 Also: Whisper turns 2 s of pure silence into **"Thank you."**, so recordings peaking below −45 dBFS are treated as
 "Nothing heard" and never transcribed (idle AirPods: −66 to −84 dBFS; speech: −10 to −16 dBFS).
 
+And (Slice B UAT): **AirPods deliver audio in uneven slices.** Asked for 20 ms buffers, the WASAPI capture of the
+AirPods fired 3,116 callbacks in 36 s averaging 79 samples, half of them (1,558) empty — a real block, then empty
+ones. A level meter that shows the *latest* block therefore read 0.000 on all 173 UI ticks while the recording itself
+was complete (−9 dBFS peak), so the overlay's bars never moved. The meter now takes the loudest sample since the UI
+last read it, and empty callbacks are dropped. A WAV test source that always sends full blocks can't show this.
+
 ## Lessons for testing on a live desktop
 
 - **Tests that press keys can type into whatever the user is doing.** An end-to-end test focused its window, but by
@@ -54,6 +60,11 @@ Also: Whisper turns 2 s of pure silence into **"Thank you."**, so recordings pea
   test now passes the window it expects (`onlyInto:` / `--target`); if focus moved, nothing is typed and the clipboard
   is untouched. Run `Resource=SendsKeys` tests only when nobody is using the PC.
 - Claude's tool shell starts processes with Ctrl+C ignored (inherited), so a Ctrl+C test must re-enable it first.
+- **A test that moves focus or presses keys carries `Resource=SendsKeys` as its only resource tag.** The end-to-end
+  test was tagged GPU too, so a "GPU only" run focused a test window and pasted into it while the user was at the PC.
+- **The test process must be per-monitor DPI aware, like the app.** Without it Windows scales the test's coordinates
+  on a 150 % display: window-position tests still passed, but a screen capture of the overlay caught the desktop
+  behind it instead.
 
 ## Smart App Control
 

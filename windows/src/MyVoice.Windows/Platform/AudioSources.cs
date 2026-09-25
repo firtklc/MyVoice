@@ -51,6 +51,7 @@ sealed class MicSource : IAudioSource
         DeviceName = _recorder.DeviceFriendlyName;
         _recorder.DataAvailable += (buffer, flags, _, _) =>
         {
+            if (buffer.IsEmpty) return; // AirPods: about every other callback carries no audio at all (UAT B)
             var silent = flags.HasFlag(AudioClientBufferFlags.Silent);
             var samples = MemoryMarshal.Cast<byte, short>(buffer);
             if (silent) samples = new short[samples.Length]; // the buffer's content is meaningless when flagged Silent
