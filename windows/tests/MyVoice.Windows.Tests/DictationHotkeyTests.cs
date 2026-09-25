@@ -92,7 +92,7 @@ public class DictationHotkeyTests
     [Fact]
     public void AShortcutTakenAtStartupIsKeptAndRetriedOnResume() => OnUiThread(hotkeys =>
     {
-        var otherApp = new GlobalHotkey();
+        using var otherApp = new GlobalHotkey();
         otherApp.Register(1, F13.Modifiers, F13.Key, out _);
         var dictation = new DictationHotkey(hotkeys, Id);
         Assert.False(dictation.Start(F13, out var error));

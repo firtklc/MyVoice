@@ -109,6 +109,10 @@ static class NativeMethods
     [DllImport("user32.dll")]
     public static extern bool ClientToScreen(IntPtr hWnd, ref POINT point);
 
+    /// <summary>96 for DPI-unaware windows, the system DPI for system-aware ones, the monitor's for per-monitor-aware ones.</summary>
+    [DllImport("user32.dll")]
+    public static extern uint GetDpiForWindow(IntPtr hWnd);
+
     // ---- keys (Settings shortcut field) ----
 
     public const uint MAPVK_VK_TO_CHAR = 2;

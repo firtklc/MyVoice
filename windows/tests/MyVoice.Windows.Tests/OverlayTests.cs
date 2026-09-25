@@ -1,4 +1,5 @@
 using System.Drawing;
+using MyVoice.Windows.Platform;
 using MyVoice.Windows.Core;
 
 namespace MyVoice.Windows.Tests;
@@ -110,4 +111,23 @@ public class OverlayMeterTests
         Assert.NotEqual(OverlayMeter.BarHeights(OverlayKind.Connecting, 0, 0), OverlayMeter.BarHeights(OverlayKind.Connecting, 0, 0.25));
         Assert.All(OverlayMeter.BarHeights(OverlayKind.Connecting, 0, 0.3), h => Assert.True(h <= OverlayMeter.MaxBar * 0.6f));
     }
+}
+
+public class CaretGeometryTests
+{
+    static NativeMethods.RECT Rect(int l, int t, int r, int b) => new() { Left = l, Top = t, Right = r, Bottom = b };
+
+    [Fact]
+    public void AnEmptyCaretMeansNoCaret() =>
+        // The Mac's CursorLocator falls back to the mouse when the caret rect is empty; apps can own a 0×0 caret at 0,0.
+        Assert.Null(CaretLocator.ToScreen(Rect(0, 0, 0, 0), new Point(500, 300), scale: 1));
+
+    [Fact]
+    public void APerMonitorAwareAppsCaretIsOffsetFromItsClientOrigin() =>
+        Assert.Equal(new Rectangle(540, 320, 2, 24), CaretLocator.ToScreen(Rect(40, 20, 42, 44), new Point(500, 300), scale: 1));
+
+    [Fact]
+    public void ADpiUnawareAppsCaretIsScaledToPhysicalPixels() =>
+        // At 150 % a DPI-unaware app reports its caret in 96-DPI units; MyVoice works in physical pixels.
+        Assert.Equal(new Rectangle(560, 330, 2, 30), CaretLocator.ToScreen(Rect(40, 20, 41, 40), new Point(500, 300), scale: 1.5));
 }

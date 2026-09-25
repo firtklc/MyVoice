@@ -371,9 +371,8 @@ sealed class TrayApp : ApplicationContext
     void OpenSettings()
     {
         if (_settingsForm is not null) { _settingsForm.Activate(); return; }
-        using var stream = typeof(TrayApp).Assembly.GetManifestResourceStream("MyVoice.Windows.Assets.MyVoice.ico")!;
-        var form = new SettingsForm(new SettingsActions(BeginShortcutCapture, ApplyShortcut, EndShortcutCapture, SetLanguage), new Icon(stream));
-        form.FormClosed += (_, _) => { form.Dispose(); _settingsForm = null; UpdateUi(); };
+        var form = new SettingsForm(new SettingsActions(BeginShortcutCapture, ApplyShortcut, EndShortcutCapture, SetLanguage), _icons.Window);
+        form.FormClosed += (_, _) => { _settingsForm = null; UpdateUi(); }; // a closed modeless form disposes itself
         _settingsForm = form;
         UpdateUi();
         form.Show();

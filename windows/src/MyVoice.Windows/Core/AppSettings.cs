@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace MyVoice.Windows.Core;
 
@@ -21,6 +22,10 @@ public sealed record AppSettings
     /// <summary>When true, the log also records transcript text and last_recording.wav is kept. Off by default.</summary>
     public bool Debug { get; init; }
 
+    /// <summary>Keys this version doesn't know, written back unchanged: MyVoice rewrites the file when settings change.</summary>
+    [JsonExtensionData]
+    public Dictionary<string, JsonElement>? Other { get; init; }
+
     public static AppSettings Load(string path, out string? problem)
     {
         problem = null;
@@ -29,8 +34,7 @@ public sealed record AppSettings
         {
             var settings = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(path), Json) ?? new AppSettings();
             settings = settings with { Language = LanguagePreference.FromCode(settings.Language).Code };
-            if (Core.Hotkey.TryParse(settings.Hotkey, out var hotkey) && hotkey.Problem is null)
-                return settings with { Hotkey = hotkey.ToString() };
+            if (Allowed(settings.Hotkey) is { } hotkey) return settings with { Hotkey = hotkey.ToString() };
             problem = $"hotkey '{settings.Hotkey}' in settings.json can't be used — using {Core.Hotkey.Default}";
             return settings with { Hotkey = Core.Hotkey.Default.ToString() };
         }
@@ -41,7 +45,9 @@ public sealed record AppSettings
         }
     }
 
-    public Core.Hotkey ParseHotkey() => Core.Hotkey.TryParse(Hotkey, out var hotkey) && hotkey.Problem is null ? hotkey : Core.Hotkey.Default;
+    public Core.Hotkey ParseHotkey() => Allowed(Hotkey) ?? Core.Hotkey.Default;
+
+    static Core.Hotkey? Allowed(string? text) => Core.Hotkey.TryParse(text, out var hotkey) && hotkey.Problem is null ? hotkey : null;
 
     public void Save(string path)
     {

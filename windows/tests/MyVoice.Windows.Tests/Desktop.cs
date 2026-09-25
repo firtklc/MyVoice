@@ -13,6 +13,32 @@ static class Desktop
     [DllImport("user32.dll")] static extern bool SetForegroundWindow(IntPtr hWnd);
     [DllImport("user32.dll")] static extern bool AttachThreadInput(uint attach, uint to, bool on);
     [DllImport("kernel32.dll")] static extern uint GetCurrentThreadId();
+    [DllImport("user32.dll")] public static extern int GetWindowLong(IntPtr hWnd, int index);
+    [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr hWnd);
+    [DllImport("user32.dll")] public static extern IntPtr WindowFromPoint(Point point);
+    [DllImport("user32.dll")] static extern bool GetWindowRect(IntPtr hWnd, out NativeMethods.RECT rect);
+    [DllImport("user32.dll")] static extern IntPtr GetDC(IntPtr hWnd);
+    [DllImport("user32.dll")] static extern int ReleaseDC(IntPtr hWnd, IntPtr dc);
+    [DllImport("gdi32.dll")] static extern bool BitBlt(IntPtr dest, int x, int y, int w, int h, IntPtr source, int sx, int sy, int rop);
+
+    public static Rectangle WindowRect(IntPtr window)
+    {
+        GetWindowRect(window, out var r);
+        return Rectangle.FromLTRB(r.Left, r.Top, r.Right, r.Bottom);
+    }
+
+    /// <summary>What is on screen in <paramref name="area"/> now, layered windows included (CAPTUREBLT).</summary>
+    public static Bitmap Capture(Rectangle area)
+    {
+        var shot = new Bitmap(area.Width, area.Height);
+        using var g = Graphics.FromImage(shot);
+        var screen = GetDC(IntPtr.Zero);
+        var target = g.GetHdc();
+        BitBlt(target, 0, 0, area.Width, area.Height, screen, area.Left, area.Top, 0x00CC0020 | 0x40000000); // SRCCOPY | CAPTUREBLT
+        g.ReleaseHdc(target);
+        ReleaseDC(IntPtr.Zero, screen);
+        return shot;
+    }
 
     /// <summary>Runs <paramref name="body"/> on an STA thread with a WinForms message loop, like MyVoice's UI thread.</summary>
     public static void RunSta(Func<Task> body, int timeoutMs = 20000)

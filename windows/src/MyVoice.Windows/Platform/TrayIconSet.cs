@@ -25,10 +25,15 @@ sealed class TrayIconSet : IDisposable
 
     public Icon this[TrayIconKind kind] => _icons[kind];
 
+    /// <summary>The app icon with all its sizes (for windows: title bar and taskbar).</summary>
+    public Icon Window { get; } = new(AppIconStream());
+
+    static Stream AppIconStream() => typeof(TrayIconSet).Assembly.GetManifestResourceStream("MyVoice.Windows.Assets.MyVoice.ico")!;
+
     /// <summary>The app icon at <paramref name="size"/> px, scaled from the embedded .ico's closest larger PNG frame.</summary>
     internal static Bitmap AppImage(int size)
     {
-        using var stream = typeof(TrayIconSet).Assembly.GetManifestResourceStream("MyVoice.Windows.Assets.MyVoice.ico")!;
+        using var stream = AppIconStream();
         using var reader = new BinaryReader(stream);
         reader.ReadBytes(4);
         var count = reader.ReadUInt16();
@@ -120,5 +125,6 @@ sealed class TrayIconSet : IDisposable
     public void Dispose()
     {
         foreach (var icon in _icons.Values) icon.Dispose();
+        Window.Dispose();
     }
 }

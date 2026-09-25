@@ -88,6 +88,17 @@ public sealed class AppSettingsTests : IDisposable
     }
 
     [Fact]
+    public void UnknownFieldsSurviveASave()
+    {
+        // MyVoice now rewrites settings.json when the language or shortcut changes: keys it doesn't know stay.
+        File.WriteAllText(_path, """{"language": "en", "somethingNew": {"a": 1}}""");
+        (AppSettings.Load(_path, out _) with { Language = "tr" }).Save(_path);
+        var json = File.ReadAllText(_path);
+        Assert.Contains("somethingNew", json);
+        Assert.Equal("tr", AppSettings.Load(_path, out _).Language);
+    }
+
+    [Fact]
     public void SaveCreatesTheFolder()
     {
         var dir = Path.Combine(Path.GetTempPath(), $"myvoice-{Guid.NewGuid()}");

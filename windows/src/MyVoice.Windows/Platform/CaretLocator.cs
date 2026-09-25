@@ -16,10 +16,22 @@ static class CaretLocator
         var info = new NativeMethods.GUITHREADINFO { Size = Marshal.SizeOf<NativeMethods.GUITHREADINFO>() };
         if (!NativeMethods.GetGUIThreadInfo(NativeMethods.GetWindowThreadProcessId(foreground, out _), ref info) || info.Caret == IntPtr.Zero)
             return null;
-        var rect = info.CaretRect;
-        var topLeft = new NativeMethods.POINT { X = rect.Left, Y = rect.Top };
-        if (!NativeMethods.ClientToScreen(info.Caret, ref topLeft)) return null;
-        return new Rectangle(topLeft.X, topLeft.Y, Math.Max(1, rect.Right - rect.Left), Math.Max(1, rect.Bottom - rect.Top));
+        var origin = new NativeMethods.POINT();
+        if (!NativeMethods.ClientToScreen(info.Caret, ref origin)) return null; // physical: MyVoice is per-monitor aware
+        var windowDpi = NativeMethods.GetDpiForWindow(info.Caret);
+        var scale = windowDpi == 0 ? 1 : NativeMethods.DpiAt(new Point(origin.X, origin.Y)) / (double)windowDpi;
+        return ToScreen(info.CaretRect, new Point(origin.X, origin.Y), scale);
+    }
+
+    /// <summary>The caret rect (in the caret window's own client units) in physical screen pixels, or null when it is
+    /// empty (the Mac falls back to the mouse then too). <paramref name="scale"/> is the monitor DPI over the window's
+    /// DPI: 1 for per-monitor-aware apps, 1.5 for a DPI-unaware app on a 150 % display, whose units are 96-DPI pixels.</summary>
+    internal static Rectangle? ToScreen(NativeMethods.RECT caret, Point clientOrigin, double scale)
+    {
+        if (caret.Right <= caret.Left && caret.Bottom <= caret.Top) return null;
+        int Px(int units) => (int)Math.Round(units * scale);
+        return new Rectangle(clientOrigin.X + Px(caret.Left), clientOrigin.Y + Px(caret.Top),
+            Math.Max(1, Px(caret.Right - caret.Left)), Math.Max(1, Px(caret.Bottom - caret.Top)));
     }
 
     /// <summary>The caret, else a caret-sized spot just left of the mouse pointer so the overlay ends at the pointer

@@ -141,18 +141,18 @@ sealed class SettingsForm : Form
                     break;
                 }
                 _current = hotkey;
-                EndCapture();
+                EndCapture(moveFocus: false); // the keys are still down: their auto-repeat must not reach the Close button
                 Note($"Saved — {display} now starts and stops dictation.");
                 break;
             case CaptureCancelled:
-                EndCapture();
+                EndCapture(moveFocus: false);
                 Note(ShortcutHint);
                 break;
         }
     }
 
-    /// <param name="moveFocus">Off the box, so coming back to the window doesn't look like recording.
-    /// False from Leave and FormClosing, where focus is already moving.</param>
+    /// <param name="moveFocus">Off the box, so coming back to the window doesn't look like recording. False from Leave
+    /// and FormClosing (focus is already moving) and after a key press (the box swallows its auto-repeat).</param>
     void EndCapture(bool moveFocus = true)
     {
         if (!_shortcutBox.Capturing) return;
@@ -203,6 +203,7 @@ sealed class SettingsForm : Form
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
+            if ((msg.LParam.ToInt64() & 0x40000000) != 0) return true; // auto-repeat of a key held down: never an action
             if (!Capturing) return base.ProcessCmdKey(ref msg, keyData);
             var win = NativeMethods.GetKeyState(VK_LWIN) < 0 || NativeMethods.GetKeyState(VK_RWIN) < 0;
             KeyPressed?.Invoke(keyData, win);

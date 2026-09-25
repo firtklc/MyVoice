@@ -12,15 +12,6 @@ namespace MyVoice.Windows.Tests;
 [Collection("Desktop")]
 public class RecordingOverlayTests
 {
-    [DllImport("user32.dll")] static extern int GetWindowLong(IntPtr hWnd, int index);
-    [DllImport("user32.dll")] static extern bool IsWindowVisible(IntPtr hWnd);
-    [DllImport("user32.dll")] static extern IntPtr WindowFromPoint(Point point);
-    [DllImport("user32.dll")] static extern bool GetWindowRect(IntPtr hWnd, out Rect rect);
-    [StructLayout(LayoutKind.Sequential)] struct Rect { public int Left, Top, Right, Bottom; }
-    [DllImport("user32.dll")] static extern IntPtr GetDC(IntPtr hWnd);
-    [DllImport("user32.dll")] static extern int ReleaseDC(IntPtr hWnd, IntPtr dc);
-    [DllImport("gdi32.dll")] static extern bool BitBlt(IntPtr dest, int x, int y, int w, int h, IntPtr source, int sx, int sy, int rop);
-
     const int GWL_EXSTYLE = -20;
 
     static Rectangle CaretOnPrimary()
@@ -41,9 +32,9 @@ public class RecordingOverlayTests
             for (var i = 0; i < 10; i++) { overlay.Tick(0); await Task.Delay(30); Assert.Equal(before, NativeMethods.GetForegroundWindow()); }
             overlay.Show(OverlayKind.Recording);
             for (var i = 0; i < 10; i++) { overlay.Tick(i / 10f); await Task.Delay(30); Assert.Equal(before, NativeMethods.GetForegroundWindow()); }
-            Assert.True(IsWindowVisible(overlay.Handle));
+            Assert.True(Desktop.IsWindowVisible(overlay.Handle));
             overlay.Hide();
-            Assert.False(IsWindowVisible(overlay.Handle));
+            Assert.False(Desktop.IsWindowVisible(overlay.Handle));
         });
         Assert.Equal(before, NativeMethods.GetForegroundWindow());
     }
@@ -55,11 +46,11 @@ public class RecordingOverlayTests
         {
             using var overlay = new RecordingOverlay(CaretOnPrimary);
             overlay.Show(OverlayKind.Recording);
-            var style = GetWindowLong(overlay.Handle, GWL_EXSTYLE);
+            var style = Desktop.GetWindowLong(overlay.Handle, GWL_EXSTYLE);
             const int noActivate = 0x08000000, topmost = 0x8, transparent = 0x20, layered = 0x80000, toolWindow = 0x80;
             Assert.Equal(noActivate | topmost | transparent | layered | toolWindow, style & (noActivate | topmost | transparent | layered | toolWindow));
             var center = new Point(overlay.Bounds.Left + overlay.Bounds.Width / 2, overlay.Bounds.Top + overlay.Bounds.Height / 2);
-            Assert.NotEqual(overlay.Handle, WindowFromPoint(center)); // clicks fall through to the app underneath
+            Assert.NotEqual(overlay.Handle, Desktop.WindowFromPoint(center)); // clicks fall through to the app underneath
             return Task.CompletedTask;
         });
     }
@@ -73,15 +64,14 @@ public class RecordingOverlayTests
             var calls = 0;
             using var overlay = new RecordingOverlay(() => { calls++; return caret; });
             overlay.Show(OverlayKind.Connecting);
-            GetWindowRect(overlay.Handle, out var shown);
+            var shown = Desktop.WindowRect(overlay.Handle);
             var expected = OverlayPositioner.Position(caret, overlay.Bounds.Size, Screen.FromRectangle(caret).WorkingArea, overlay.Scale);
-            Assert.Equal(expected, new Point(shown.Left, shown.Top));
-            Assert.Equal(overlay.Bounds.Size, new Size(shown.Right - shown.Left, shown.Bottom - shown.Top));
+            Assert.Equal(expected, shown.Location);
+            Assert.Equal(overlay.Bounds.Size, shown.Size);
 
             caret.Offset(300, 100); // the caret or mouse moves while the mic connects
             overlay.Show(OverlayKind.Recording);
-            GetWindowRect(overlay.Handle, out var recording);
-            Assert.Equal(shown, recording);
+            Assert.Equal(shown, Desktop.WindowRect(overlay.Handle));
             Assert.Equal(1, calls);
             return Task.CompletedTask;
         });
@@ -90,18 +80,9 @@ public class RecordingOverlayTests
     /// <summary>Height in pixels of the white middle bar as it is on screen now (not as drawn in memory).</summary>
     static int MiddleBarOnScreen(RecordingOverlay overlay)
     {
-        var b = overlay.Bounds;
-        using var shot = new Bitmap(b.Width, b.Height);
-        using (var g = Graphics.FromImage(shot))
-        {
-            var screen = GetDC(IntPtr.Zero);
-            var target = g.GetHdc();
-            BitBlt(target, 0, 0, b.Width, b.Height, screen, b.Left, b.Top, 0x00CC0020 | 0x40000000); // SRCCOPY | CAPTUREBLT (layered windows)
-            g.ReleaseHdc(target);
-            ReleaseDC(IntPtr.Zero, screen);
-        }
-        var x = b.Width / 2;
-        return Enumerable.Range(0, b.Height).Count(y => shot.GetPixel(x, y) is { R: > 200, G: > 200, B: > 200 });
+        using var shot = Desktop.Capture(overlay.Bounds);
+        var x = shot.Width / 2;
+        return Enumerable.Range(0, shot.Height).Count(y => shot.GetPixel(x, y) is { R: > 200, G: > 200, B: > 200 });
     }
 
     [Fact]
@@ -140,9 +121,6 @@ public class RecordingOverlayTests
 [Collection("Desktop")]
 public class CaretAndOverlayPasteTests
 {
-    [DllImport("user32.dll")] static extern bool GetWindowRect(IntPtr hWnd, out RectStruct rect);
-    [StructLayout(LayoutKind.Sequential)] struct RectStruct { public int Left, Top, Right, Bottom; }
-
     [Fact]
     public void FindsTheCaretOfAFocusedTextBox()
     {
@@ -151,8 +129,7 @@ public class CaretAndOverlayPasteTests
         Thread.Sleep(300); // let the text box create its caret
         var caret = CaretLocator.Caret();
         Assert.NotNull(caret);
-        GetWindowRect(target.Handle, out var window);
-        Assert.True(Rectangle.FromLTRB(window.Left, window.Top, window.Right, window.Bottom).Contains(caret.Value.Location),
+        Assert.True(Desktop.WindowRect(target.Handle).Contains(caret.Value.Location),
             $"caret {caret} is outside the target window");
     }
 
