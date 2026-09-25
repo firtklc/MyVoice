@@ -198,14 +198,33 @@ public class RecorderTests
     }
 
     [Fact]
-    public void LevelFollowsTheLatestBlock()
+    public void LevelIsTheLoudestBlockSinceTheLastRead()
+    {
+        // UAT B: AirPods deliver a 20 ms block followed by near-empty ones (2452 blocks averaging 79 samples), so the
+        // latest block was almost always empty and the overlay's bars never moved. The meter must see the speech.
+        var r = Make();
+        r.Open(1);
+        Source.Emit(16384);
+        Source.Emit(0, count: 0);
+        Source.Emit(3, count: 79);
+        Source.Emit(0, count: 0);
+        Assert.Equal(0.5f, r.TakeLevel(), 3);
+        Assert.Equal(0f, r.TakeLevel()); // nothing new since
+        Source.Emit(8192);
+        Assert.Equal(0.25f, r.TakeLevel(), 3);
+    }
+
+    [Fact]
+    public void LevelIsZeroWithoutAnOpenMic() => Assert.Equal(0f, Make().TakeLevel());
+
+    [Fact]
+    public void LevelStopsWithTheMic()
     {
         var r = Make();
         r.Open(1);
         Source.Emit(16384);
-        Assert.Equal(0.5f, r.Level, 3);
-        Source.Emit(0);
-        Assert.Equal(0f, r.Level);
+        r.Close(1, keep: false);
+        Assert.Equal(0f, r.TakeLevel());
     }
 }
 

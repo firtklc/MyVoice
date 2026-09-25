@@ -21,8 +21,8 @@ sealed class Recorder(Func<IAudioSource> createSource, Action<Action> post, Func
         public readonly double OpenedAt = openedAt;
         public readonly MicReadiness Readiness = new(openedAt);
         public readonly CaptureBuffer Buffer = new();
-        public volatile float Level;
-        public int DiagBlocks, DiagSilent, DiagQuiet, DiagMaxPeak, DiagSamples; // DEBUG
+        public int PeakSinceRead; // written on the audio thread, taken on the UI thread (Interlocked)
+        public int DiagBlocks, DiagSilent, DiagQuiet, DiagMaxPeak, DiagSamples, DiagEmpty; // DEBUG
         public bool Signalled, Stopped, CloseRequested, Keep, Finished;
         public double CloseRequestedAt;
     }
@@ -35,8 +35,9 @@ sealed class Recorder(Func<IAudioSource> createSource, Action<Action> post, Func
     public event Action<int>? Lost;
     public event Action<int, CapturedAudio, RecordingStats>? Captured;
 
-    /// <summary>Peak of the latest block, 0..1 (for the level meter).</summary>
-    public float Level => _active?.Level ?? 0;
+    /// <summary>For the level meter: the loudest sample since the last call, 0…1. Not just the latest block's:
+    /// AirPods deliver a 20 ms block followed by near-empty ones, so the latest block is usually silent.</summary>
+    public float TakeLevel() => _active is { } take ? Interlocked.Exchange(ref take.PeakSinceRead, 0) / 32768f : 0;
 
     public string? DeviceName => _active?.Source.DeviceName;
 
@@ -52,8 +53,9 @@ sealed class Recorder(Func<IAudioSource> createSource, Action<Action> post, Func
             take.Buffer.Append(at, samples);
             var peak = 0;
             foreach (var s in samples) peak = Math.Max(peak, Math.Abs((int)s));
-            take.Level = peak / 32768f;
-            take.DiagBlocks++; take.DiagSamples += samples.Length; // DEBUG
+            for (var seen = take.PeakSinceRead; peak > seen; seen = take.PeakSinceRead) // lock-free max
+                if (Interlocked.CompareExchange(ref take.PeakSinceRead, peak, seen) == seen) break;
+            take.DiagBlocks++; take.DiagSamples += samples.Length; if (samples.Length == 0) take.DiagEmpty++; // DEBUG
             if (engineSilence) take.DiagSilent++;
             if (peak < 104) take.DiagQuiet++;
             take.DiagMaxPeak = Math.Max(take.DiagMaxPeak, peak);
@@ -133,7 +135,7 @@ sealed class Recorder(Func<IAudioSource> createSource, Action<Action> post, Func
             CapturedSeconds: audio.Seconds,
             WallSeconds: readyAt is null ? 0 : take.CloseRequestedAt - readyAt.Value,
             PeakDbfs: audio.PeakDbfs);
-        Log.Info($"session {take.Session}: DEBUG blocks {take.DiagBlocks} (avg {take.DiagSamples / Math.Max(1, take.DiagBlocks)} samples), silent-flagged {take.DiagSilent}, below -50 dBFS {take.DiagQuiet}, max block peak {take.DiagMaxPeak}");
+        Log.Info($"session {take.Session}: DEBUG blocks {take.DiagBlocks} (avg {take.DiagSamples / Math.Max(1, take.DiagBlocks)} samples, {take.DiagEmpty} empty), silent-flagged {take.DiagSilent}, below -50 dBFS {take.DiagQuiet}, max block peak {take.DiagMaxPeak}");
         Captured?.Invoke(take.Session, audio, stats);
     }
 

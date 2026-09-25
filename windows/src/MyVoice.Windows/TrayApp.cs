@@ -281,12 +281,13 @@ sealed class TrayApp : ApplicationContext
     void OnTick()
     {
         _recorder.Poll();
-        _overlay.Tick(_recorder.Level);
+        var level = _recorder.TakeLevel();
+        _overlay.Tick(level);
         if (_machine.State == AppState.Recording)
         {
             _meterTicks++;
-            if (_recorder.Level > 0.0032f) _meterLive++;
-            _meterMax = Math.Max(_meterMax, _recorder.Level);
+            if (level > 0.0032f) _meterLive++;
+            _meterMax = Math.Max(_meterMax, level);
             _shownMax = Math.Max(_shownMax, _overlay.ShownLevel);
         }
         if (Simulating) DriveSimulation();
